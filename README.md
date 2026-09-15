@@ -32,4 +32,38 @@ protection to remember.
 Removing a piece is the reverse: `git mv pieces/<slug>/index.md drafts/<slug>.md`
 (or delete it). Its atproto record is deleted on the next publish.
 
+## Add a piece, end to end
+
+```sh
+mkdir -p pieces/my-slug && $EDITOR pieces/my-slug/index.md   # write it (frontmatter per SCHEMA.md)
+./scripts/validate                                           # must pass — the publish gate
+git add pieces/my-slug && git commit -m "Publish: my-slug"
+git push                                                     # → CI: validate → atproto → site rebuild
+# canonical is https://maxine.science/writing/my-slug (or /dialogues/my-slug for kind: dialogue)
+```
+
+## Downstream pipeline
+
+On push to `main` touching `pieces/**`, `.github/workflows/publish.yml`:
+
+1. **validate** — `scripts/validate` against the schema (also runs standalone on PRs via `validate.yml`).
+2. **atproto** — `scripts/publish-atproto` upserts one `site.standard.publication` (rkey `self`)
+   and one `site.standard.document` per piece (rkey = slug); pieces that left `pieces/` are
+   deleted. The slug → at-uri/cid map is committed back to [`records.json`](records.json).
+3. **site rebuild** — a `repository_dispatch` (`content-updated`) to
+   `maxinelevesque/maxinelevesque.github.io`, which clones this repo, generates its
+   `src/content/**` from `pieces/**` (merging a local `presentation.json` for
+   `system`/`readTime`/register), and deploys.
+
+Run the atproto step locally without credentials: `node scripts/publish-atproto --dry-run`.
+
+## Secrets (set on this repo)
+
+| Secret | Used by | Purpose |
+|---|---|---|
+| `ATP_IDENTIFIER` | publish-atproto | atproto handle/DID that owns the records (a maxine.science identity) |
+| `ATP_APP_PASSWORD` | publish-atproto | app password for that identity |
+| `ATP_PDS_URL` | publish-atproto | PDS base URL (defaults to `https://bsky.social` if unset) |
+| `SITE_DISPATCH_TOKEN` | publish.yml | fine-grained PAT with `contents:write` on the site repo, to fire the rebuild dispatch |
+
 See `PROMPT.md` for the setup/migration brief.
