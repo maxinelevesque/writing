@@ -18,6 +18,10 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Secrets (ATP_* and SITE_DISPATCH_TOKEN) are scoped to this environment for
+    # compartmentalization. A GitHub environment is job-level, so both the
+    # atproto-publish step and the site-dispatch step run under it.
+    environment: at-publish
     steps:
       - uses: actions/checkout@v4
 
