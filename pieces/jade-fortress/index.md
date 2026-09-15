@@ -1,11 +1,10 @@
 ---
 title: "The Jade Fortress"
 subtitle: "After dozens of failures with antidepressants and mood stabilizers, psychedelic esketamine offered me new hope for mental healing."
-date: "January 3, 2023"
-category: article
-readTime: "22 min"
+date: 2023-01-03
+kind: essay
 formerName: "Max Collard"
-system: 5
+canonical: https://maxine.science/writing/jade-fortress
 ---
 
 > **Content warning.** This post contains references to suicidal thoughts. People are always available to listen by text or phone at 988, or at the 988 [Lifeline Chat](https://988lifeline.org/chat/).

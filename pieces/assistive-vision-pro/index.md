@@ -1,10 +1,9 @@
 ---
 title: "Vision Pro: Assistive device"
-date: "April 23, 2024"
-category: article
-readTime: "5 min"
+date: 2024-04-23
+kind: essay
 formerName: "Maxine Collard"
-system: 4
+canonical: https://maxine.science/writing/assistive-vision-pro
 ---
 
 I’m albino. My eyes are … different.

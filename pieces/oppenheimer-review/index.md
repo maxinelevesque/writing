@@ -1,11 +1,10 @@
 ---
 title: "To struggle against world-ending time"
 subtitle: "A review of Oppenheimer (2023)."
-date: "August 24, 2023"
-category: article
-readTime: "8 min"
+date: 2023-08-24
+kind: essay
 formerName: "Max Collard"
-system: 6
+canonical: https://maxine.science/writing/oppenheimer-review
 ---
 
 > **Caution.** *Spoilers.*

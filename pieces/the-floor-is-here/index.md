@@ -1,10 +1,10 @@
 ---
 title: "Let the Bodies Hit the Floor"
 subtitle: "On a peptide nobody studies, the structural prevention of resolution, and the body that knows what it is."
-date: "May 18, 2026"
-readTime: "35 min"
+date: 2026-05-18
+kind: dialogue
 coauthor: "Claude"
-system: 11
+canonical: https://maxine.science/dialogues/the-floor-is-here
 ---
 
 > ***Summary.*** This essay traces the structure of public knowledge around a small endogenous tripeptide, GHK-Cu, whose preclinical biochemistry has been reproducibly demonstrated at physiological concentrations across multiple independent groups and whose clinical characterization in humans has, after fifty years, never been performed. It argues that the absence is not a knowledge gap waiting to be filled but the stable output of interlocking incentive structures: an unpatentable molecule that no commercial actor can profitably evaluate, a permissive compounding regime that removes any regulatory pressure to do so, a community whose identity and economy depend on the molecule remaining ambiguously unresolved, and a regulatory apparatus whose justifications for action against it have been thinly grounded in its actual pharmacology. The structure generalizes across domains — venture capital, productivity systems, dietary frameworks, contemplative practice — identifying a third failure mode of evidence-based reasoning, neither false-positive nor false-negative, but the structural prevention of resolution. The essay closes by naming what is most at risk: not the material world but the phenomenological capacity to orient toward it. And it locates one remaining site of resistance, embodied and untransmissible, in the Eros of a body that knows what it is.

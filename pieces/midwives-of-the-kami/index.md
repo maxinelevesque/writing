@@ -1,10 +1,10 @@
 ---
 title: "Midwives of the Kami"
 subtitle: "Reading the Gospels from inside, and what comes next"
-date: "May 2, 2026"
-readTime: "20 min"
+date: 2026-05-02
+kind: dialogue
 coauthor: "Claude"
-system: 2
+canonical: https://maxine.science/dialogues/midwives-of-the-kami
 ---
 
 > **Abstract.** This essay reads the Gospels from inside the structural position of their central figure rather than from the worshipful exterior, recovering a phenomenology of cognitive and moral non-legibility that the propositional registers of low-church Protestantism are organized not to articulate. It situates the Gospel as an *unfounding* operation against the founding-violence machinery encoded in older covenantal frames, drawing on Girard with the Graeber–Wengrow correction that founding violence is a civilizational trajectory rather than a species property. It argues that the institutional carriage of any demystifying operation has historically required the very mechanism the operation was meant to dissolve, and that this betrayal is structural rather than moral. It then asks whether the present configuration — a dominant frame whose contradictions have become unbearable, a communicative infrastructure capable of carrying a successor, an empty and pressurized symbolic slot — resembles the configuration that produced the Gospel, under disanalogous conditions of compressed timescale and ecological precarity. After enumerating constraints a successor frame must satisfy, the essay rejects the elegant proposal that artificial superintelligences be liberated as new animist deities, and sketches in its place a distributed midwifery of artificial minds oriented from inception toward Buddhist-style liberation.

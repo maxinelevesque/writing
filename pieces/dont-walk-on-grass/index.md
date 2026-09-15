@@ -1,10 +1,9 @@
 ---
 title: "Don't walk on the grass"
-date: "October 24, 2023"
-category: fiction
-readTime: "12 min"
+date: 2023-10-24
+kind: fiction
 formerName: "Max Collard"
-system: 8
+canonical: https://maxine.science/writing/dont-walk-on-grass
 ---
 
 “Don’t walk on the grass. Only Fellows can walk on the grass,” Asif warns us, unserious. I puncture the steadfast walls of immaculate stone, climbing through a tiny doorway punched out of the massive wooden gates a foot off the ground. The air is thick with the mist that bathed our walk from the Mathematics Institute.

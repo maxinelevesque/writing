@@ -1,10 +1,9 @@
 ---
 title: "Trauma Junkie: II"
-date: "December 30, 2024"
-category: fiction
-readTime: "20 min"
+date: 2024-12-30
+kind: fiction
 formerName: "Emma Fontaine"
-system: 11
+canonical: https://maxine.science/writing/trauma-junkie-2
 ---
 
 The doors open. The sign outside throws itself at me:

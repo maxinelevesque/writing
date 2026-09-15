@@ -1,11 +1,10 @@
 ---
 title: "The Substance Between"
 subtitle: "How I introduced my old blog."
-date: "December 13, 2022"
-category: article
-readTime: "6 min"
+date: 2022-12-13
+kind: essay
 formerName: "Max Collard"
-system: 3
+canonical: https://maxine.science/writing/substance-between
 ---
 
 In early 2022, after more than a decade trying to find something to ease my mental suffering, I started using the psychedelic medication esketamine under the direction of my doctors. My experiences on this medicine continually challenges my perspective on my own mind and my relationship to the world around me, often in ways that language fails to capture.

@@ -1,10 +1,9 @@
 ---
 title: "Trauma Junkie: I"
-date: "September 17, 2024"
-category: fiction
-readTime: "18 min"
+date: 2024-09-17
+kind: fiction
 formerName: "Emma Fontaine"
-system: 0
+canonical: https://maxine.science/writing/trauma-junkie-1
 ---
 
 It’s Christmastime, and over the hills, in the faraway furrows of one of those endless tracts of half-submerged land, a main battle tank sits in a ditch, decomposing, festering. My tank.

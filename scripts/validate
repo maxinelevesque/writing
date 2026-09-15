@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+// The only gate on publishing. Validates every pieces/<slug>/index.md against
+// the frontmatter schema documented in SCHEMA.md. Exits non-zero on any
+// violation so CI (.github/workflows/validate.yml) fails the build.
+//
+// Dependency-free: standard Node only.
+
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parse } from './lib/frontmatter.mjs';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const PIECES = join(ROOT, 'pieces');
+
+const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue']);
+const ALLOWED = new Set([
+  'title', 'subtitle', 'date', 'updated', 'kind',
+  'coauthor', 'formerName', 'summary', 'canonical',
+]);
+const REQUIRED = ['title', 'date', 'kind', 'canonical'];
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const SITE = 'https://maxine.science';
+
+let errors = 0;
+const fail = (slug, msg) => { errors++; console.error(`  ✗ ${slug}: ${msg}`); };
+
+function isRealDate(s) {
+  if (!DATE_RE.test(s)) return false;
+  const [y, m, d] = s.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
+let slugs;
+try {
+  slugs = readdirSync(PIECES).filter((n) => {
+    try { return statSync(join(PIECES, n)).isDirectory(); } catch { return false; }
+  }).sort();
+} catch {
+  console.error('no pieces/ directory found');
+  process.exit(1);
+}
+
+for (const slug of slugs) {
+  const file = join(PIECES, slug, 'index.md');
+  let raw;
+  try { raw = readFileSync(file, 'utf8'); }
+  catch { fail(slug, `missing ${slug}/index.md`); continue; }
+
+  let fm;
+  try { fm = parse(raw); }
+  catch (e) { fail(slug, e.message); continue; }
+  if (!fm.data) { fail(slug, 'no frontmatter block'); continue; }
+  const d = fm.data;
+
+  for (const k of REQUIRED) {
+    if (!(k in d) || d[k] === '') fail(slug, `missing required field: ${k}`);
+  }
+  for (const k of Object.keys(d)) {
+    if (!ALLOWED.has(k)) fail(slug, `unknown field: ${k}`);
+  }
+
+  if (d.date && !isRealDate(d.date)) fail(slug, `date must be a real YYYY-MM-DD (got "${d.date}")`);
+  if (d.updated && !isRealDate(d.updated)) fail(slug, `updated must be a real YYYY-MM-DD (got "${d.updated}")`);
+
+  if (d.kind && !KINDS.has(d.kind)) fail(slug, `kind must be one of ${[...KINDS].join(', ')} (got "${d.kind}")`);
+
+  // canonical must resolve to the site path implied by kind and equal the slug
+  if (d.canonical) {
+    const seg = d.kind === 'dialogue' ? 'dialogues' : 'writing';
+    const want = `${SITE}/${seg}/${slug}`;
+    if (d.canonical !== want) fail(slug, `canonical must be ${want} (got "${d.canonical}")`);
+  }
+
+  // register consistency: dialogues carry a coauthor; the rest do not.
+  if (d.kind === 'dialogue' && !d.coauthor) fail(slug, 'kind: dialogue requires a coauthor');
+  if (d.kind && d.kind !== 'dialogue' && d.coauthor) fail(slug, `coauthor is only for kind: dialogue (got kind: ${d.kind})`);
+}
+
+if (errors) {
+  console.error(`\nvalidate: ${errors} error(s) across ${slugs.length} piece(s)`);
+  process.exit(1);
+}
+console.log(`validate: ${slugs.length} piece(s) OK`);
