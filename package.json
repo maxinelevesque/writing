@@ -1,0 +1,17 @@
+{
+  "name": "writing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical source for Maxine Levesque's public writing.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate": "./scripts/validate",
+    "publish:atproto": "node scripts/publish-atproto"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.18.17"
+  }
+}

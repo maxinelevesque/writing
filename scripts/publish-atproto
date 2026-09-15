@@ -1,0 +1,171 @@
+#!/usr/bin/env node
+// Publish this repo's pieces/ as atproto site.standard.* records.
+//
+// Record shapes reuse decant / sequoia's `site.standard.publication` and
+// `site.standard.document` (see decant packages), but this script owns the
+// publish policy the migration brief requires and which sequoia does NOT do:
+//   - rkey = slug (deterministic), upserted with putRecord — idempotent
+//   - one publication record at rkey "self", idempotent
+//   - records that leave pieces/ are DELETED from the PDS
+//   - a committed records.json ledger (slug -> at-uri, cid) so the mapping is
+//     inspectable in git
+//
+// Credentials via env: ATP_IDENTIFIER, ATP_APP_PASSWORD, ATP_PDS_URL.
+// Run `node scripts/publish-atproto --dry-run` to compute the plan without
+// touching the network or needing credentials.
+
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+import { parse } from './lib/frontmatter.mjs';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const PIECES = join(ROOT, 'pieces');
+const LEDGER = join(ROOT, 'records.json');
+
+// ---- publication identity (the site this repo feeds) -----------------------
+const SITE_URL = 'https://maxine.science';
+const PUBLICATION_NAME = 'maxine.science';
+const PUBLICATION_RKEY = 'self';
+const COL_PUB = 'site.standard.publication';
+const COL_DOC = 'site.standard.document';
+
+const DRY_RUN = process.argv.includes('--dry-run');
+
+// ---- helpers ---------------------------------------------------------------
+const sha256 = (s) => createHash('sha256').update(s).digest('hex');
+
+function loadLedger() {
+  if (existsSync(LEDGER)) return JSON.parse(readFileSync(LEDGER, 'utf8'));
+  return { publication: null, documents: {} };
+}
+function saveLedger(l) {
+  // stable key order for clean diffs
+  const documents = {};
+  for (const k of Object.keys(l.documents).sort()) documents[k] = l.documents[k];
+  writeFileSync(LEDGER, JSON.stringify({ publication: l.publication, documents }, null, 2) + '\n');
+}
+
+function listSlugs() {
+  return readdirSync(PIECES)
+    .filter((n) => { try { return statSync(join(PIECES, n, 'index.md')).isFile(); } catch { return false; } })
+    .sort();
+}
+
+// Reduce markdown body to plain text for the record's textContent field.
+function stripMarkdown(md) {
+  return md
+    .replace(/```[\s\S]*?```/g, ' ')          // fenced code
+    .replace(/`([^`]+)`/g, '$1')               // inline code
+    .replace(/^<!--[\s\S]*?-->/gm, ' ')        // html comments
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')     // images
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')   // links -> text
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')        // headings
+    .replace(/^\s{0,3}>\s?/gm, '')             // blockquotes
+    .replace(/^\s{0,3}([-*_])\s*\1\s*\1[\s\S]*?$/gm, ' ') // hr / ***
+    .replace(/\*\*([^*]+)\*\*/g, '$1')         // bold
+    .replace(/([*_])([^*_]+)\1/g, '$2')        // italic
+    .replace(/~~([^~]+)~~/g, '$1')             // strikethrough
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildDocRecord(slug, fm, publicationUri) {
+  const d = fm.data;
+  const path = new URL(d.canonical).pathname;   // /writing/<slug> or /dialogues/<slug>
+  const rec = {
+    $type: COL_DOC,
+    title: d.title,
+    site: publicationUri,
+    path,
+    textContent: stripMarkdown(fm.body),
+    publishedAt: new Date(`${d.date}T00:00:00.000Z`).toISOString(),
+    canonicalUrl: d.canonical,
+  };
+  if (d.updated) rec.updatedAt = new Date(`${d.updated}T00:00:00.000Z`).toISOString();
+  const description = d.summary || d.subtitle;
+  if (description) rec.description = description;
+  return rec;
+}
+
+// ---- main ------------------------------------------------------------------
+async function main() {
+  const ledger = loadLedger();
+  const slugs = listSlugs();
+
+  // Build desired document records + content hashes.
+  const desired = {};
+  for (const slug of slugs) {
+    const raw = readFileSync(join(PIECES, slug, 'index.md'), 'utf8');
+    const fm = parse(raw);
+    desired[slug] = { hash: sha256(raw), fm };
+  }
+
+  let agent = null;
+  if (!DRY_RUN) {
+    const identifier = process.env.ATP_IDENTIFIER;
+    const password = process.env.ATP_APP_PASSWORD;
+    const service = process.env.ATP_PDS_URL || 'https://bsky.social';
+    if (!identifier || !password) {
+      console.error('Set ATP_IDENTIFIER and ATP_APP_PASSWORD (and optionally ATP_PDS_URL).');
+      process.exit(2);
+    }
+    const { AtpAgent } = await import('@atproto/api');
+    agent = new AtpAgent({ service });
+    await agent.login({ identifier, password });
+  }
+
+  const put = async (collection, rkey, record) => {
+    if (DRY_RUN) { console.log(`  PUT   ${collection}/${rkey}`); return { uri: `at://DRY/${collection}/${rkey}`, cid: 'DRY' }; }
+    const res = await agent.com.atproto.repo.putRecord({ repo: agent.did, collection, rkey, record });
+    return { uri: res.data.uri, cid: res.data.cid };
+  };
+  const del = async (collection, rkey) => {
+    if (DRY_RUN) { console.log(`  DEL   ${collection}/${rkey}`); return; }
+    await agent.com.atproto.repo.deleteRecord({ repo: agent.did, collection, rkey });
+  };
+
+  // 1. Publication record (idempotent; preserve original createdAt once set).
+  const createdAt = ledger.publication?.createdAt || new Date().toISOString();
+  const pubRecord = {
+    $type: COL_PUB,
+    url: SITE_URL,
+    name: PUBLICATION_NAME,
+    createdAt,
+    preferences: { showInDiscover: false },
+  };
+  const pub = await put(COL_PUB, PUBLICATION_RKEY, pubRecord);
+  const publicationUri = pub.uri;
+  ledger.publication = { uri: pub.uri, cid: pub.cid, createdAt };
+
+  // 2. Upsert documents whose content changed (or that are new / missing a uri).
+  let created = 0, updated = 0, skipped = 0, deleted = 0;
+  for (const slug of slugs) {
+    const prev = ledger.documents[slug];
+    const { hash, fm } = desired[slug];
+    if (prev && prev.uri && prev.contentHash === hash && prev.site === publicationUri) {
+      skipped++;
+      continue;
+    }
+    const record = buildDocRecord(slug, fm, publicationUri);
+    const { uri, cid } = await put(COL_DOC, slug, record);
+    ledger.documents[slug] = { uri, cid, contentHash: hash, site: publicationUri };
+    if (prev) updated++; else created++;
+  }
+
+  // 3. Delete records for pieces that left pieces/.
+  for (const slug of Object.keys(ledger.documents)) {
+    if (!desired[slug]) {
+      await del(COL_DOC, slug);
+      delete ledger.documents[slug];
+      deleted++;
+    }
+  }
+
+  saveLedger(ledger);
+  console.log(`publish-atproto${DRY_RUN ? ' (dry-run)' : ''}: publication ${publicationUri}`);
+  console.log(`  documents: ${created} created, ${updated} updated, ${skipped} unchanged, ${deleted} deleted`);
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
