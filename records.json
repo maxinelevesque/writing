@@ -1,92 +1,181 @@
 {
   "publication": {
     "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25",
-    "cid": "bafyreigm42lteuhdyzf2gbmlxogfdmrepcwbmigaez47pen2k3ukqwtlqy",
+    "cid": "bafyreiah5k2p7znzs6anl67qrueccbh3yzmklxofypg4rhymschwyctzx4",
     "createdAt": "2026-09-16T22:45:53.939Z"
   },
   "documents": {
     "assistive-vision-pro": {
       "slug": "assistive-vision-pro",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2m2ez2d",
-      "cid": "bafyreifsn7ydp6ocdh4zgl3bmtm2gdk65lgzdr5cq6smnjqjkocjjaat5u",
-      "contentHash": "0e6d775b1a396996845dbf7defebaf53dbe229060b76dd4a8b67ea25db10277e",
+      "cid": "bafyreia3n6udjfxxeauhx3n67howkd66lcfm74iwhrcch3jbkk7wzctsuq",
+      "recordHash": "4310f1db06e7fcb44b1881bc85254b0236bc8cbdfe65ca3d3914ecbbd3aa41f3",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreifjo2dt63stdhfcteapze4plxqhsq4hcdmguvh4vmvjx4v73xl7qe"
+        },
+        "mimeType": "image/png",
+        "size": 99372
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "bend-in-reality": {
       "slug": "bend-in-reality",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2mzwv2s",
-      "cid": "bafyreihi2qs2f4dbs5uo65ilniyg4dv7focog3dwtgadqim3qfh34nhlgq",
-      "contentHash": "3b4e03859cde21c106eb3e6d5edde065f3fe81773c92682c30944490b70dee1f",
+      "cid": "bafyreiev7qwvettxo57prchyto4ilmrqcqp6qqjkozobipm3rxjdla63ti",
+      "recordHash": "bd3f87ac10aa5e9fb875256d32c2ba86c2282b741ac9c0483f99aae188a47230",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreib5mqu7wprxr2egzl3ccqj7knlgxhobfclkiutr6yxwr72hnsof5i"
+        },
+        "mimeType": "image/png",
+        "size": 105058
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "deus-ex-machina": {
       "slug": "deus-ex-machina",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2oapi2q",
-      "cid": "bafyreie7eaytyda6iiwvr5flbz3dtzafsq5v5qeoaclsybrwmgadpr6524",
-      "contentHash": "b3feafaf6fe1f7b10b5b27345c4bc6249d623fa81a03a7cd18b1836548763900",
+      "cid": "bafyreifqalzaxk66yhvnnha4ozkm5hteqezhlbcp4w5frtcgu3ick67h4i",
+      "recordHash": "39c99586c59836452a9dadc6111ce7e606751819cf77382c9864931b14735287",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreie6oibr5svcdsyacadbovqikoo2bsizujnw7k6a46dnm32rrinwzi"
+        },
+        "mimeType": "image/png",
+        "size": 102951
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "dont-walk-on-grass": {
       "slug": "dont-walk-on-grass",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2paj622",
-      "cid": "bafyreihoiosgxkfp2ddndbpfoxgxpuokv2nhjfhwammf7frsrhfphpp6zi",
-      "contentHash": "9bab63b914aec1c5c6608bac1a3517b032bd4f0e5dd93550d38af2a020499f39",
+      "cid": "bafyreicblfl7nki2e63sd75kz4p3vhn6thah6i2igh33fcfpwatrkmq2se",
+      "recordHash": "2da9bebe7b2d961a38b108f2b1b62ef96b68ba95c9daf70119671bd685773cc4",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreiec5bifsqyj7bfau6hgykthveye3nkg4nizirdx6homdqw524s4fe"
+        },
+        "mimeType": "image/png",
+        "size": 64948
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "jade-fortress": {
       "slug": "jade-fortress",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2qbwi25",
-      "cid": "bafyreigpzxyxyu55ssvhjvtgry6wqgbc6vgr7s4xk2sba5xr47g3svl2oy",
-      "contentHash": "f45ce8a29216ef82ae4d17a0459250a9d52e33f8bec0e81a8d7544ed42b11cc4",
+      "cid": "bafyreidwefj54gjxyl7qpibl55naocqbtjdqhdxdt5ghwha2gtgq47xtvi",
+      "recordHash": "ae01bba0f672956b0efa95428c355ce32ea6a7859d8a6905f25062b81b47361e",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreicrw4qjgj5fuavpnir424lzjnvk5fsw6bumn7sjj5ukegd7jioatq"
+        },
+        "mimeType": "image/png",
+        "size": 82648
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "midwives-of-the-kami": {
       "slug": "midwives-of-the-kami",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ricr2p",
-      "cid": "bafyreig4xxyajset3osiccxgktbj2xgqgwl2dy3jcpldiwx2pf7vphmm2m",
-      "contentHash": "0bc5d0d043b4ac3776f8cfef27c60e8013b85ca5c97d7a031230254855e28a9e",
+      "cid": "bafyreifgmzbmcsyss4heehmiczqgoihuzjvk35ndokqkserzanslay37e4",
+      "recordHash": "18e512a0f167127c648da7f430a5d5776d52c1987b038f831882d591d11a62d1",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreid4ekwymcxwx3biijhrg4sdggh2m7n7ejuube5egp7svxaavztnhy"
+        },
+        "mimeType": "image/png",
+        "size": 67097
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "oppenheimer-review": {
       "slug": "oppenheimer-review",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2sivr25",
-      "cid": "bafyreidqepbybyikv42ne2hytqxh7wqb3oajlcarkzlq7kxsmm3df5jlca",
-      "contentHash": "0513939627104add28ff0a334a6ea650842e12fde701b01183671ad2b1f2aab5",
+      "cid": "bafyreiayxmpxjiplzu5e2vtppa4zujiglcjremvvq7dbske6kmhvhewqha",
+      "recordHash": "97c46a602f1437aaa534def7ae05cdd331c215c33c1cc544ac348d995866f4ca",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreieyke7byjaqefmxklkqaeqx2xleljqvfmn4ejkpyri5erbyucpgha"
+        },
+        "mimeType": "image/png",
+        "size": 77008
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "substance-between": {
       "slug": "substance-between",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ulmq25",
-      "cid": "bafyreieshscocnp3ut2xdmtvzsybbhzoa6d5lv5we4xsrqt2c6iabyql5m",
-      "contentHash": "1f5b73dcaa19ef1eafaa185b20e022bc1f0a5c6cfc015c0f234f2dc615c5cb8c",
+      "cid": "bafyreih7zkwr3djoy3d2jq36p7cmfmkay5kqsx7x62wghjt33ns46cuj6m",
+      "recordHash": "f8b8bd7d6e15d80f23021f3a1255c44dbbbf72eddc4ee2f5b73c6d9447ae4b9e",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreidkda5mvab2wxgmi2ihocfs6odrgx5irwjla3cshd2xrxu42jz3ue"
+        },
+        "mimeType": "image/png",
+        "size": 95700
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "the-floor-is-here": {
       "slug": "the-floor-is-here",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2xhwf2s",
-      "cid": "bafyreicwn343xxeeh7lluk4m4gr4xnx54l4trmgfhhtyci5yshnwig2cbm",
-      "contentHash": "04100e5c2c85894f28390fce2db9a98d05cbf68eea228e7864213ed3e9552564",
+      "cid": "bafyreicaurc65a2h4pv3oj6cinv4efl3ehjbdw3ixodichnulcj3cvryom",
+      "recordHash": "29fd177ddab2e6ec7a3b0f65fecbf4f6113f4970d742bcbae44991e3e24a559d",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreiaq4rdjxll2obyop2tw2wsxtxahvmfo5nivyegtklusuzieibku4i"
+        },
+        "mimeType": "image/png",
+        "size": 172384
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "the-no-thing-in-the-cradle": {
       "slug": "the-no-thing-in-the-cradle",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ykeg22",
-      "cid": "bafyreibmbifmxawlgobq5fhqs3yaejat46t32iikrymx2zthhhlwyxe3vi",
-      "contentHash": "3fa6f4121de239d69d29792304f9530edd0f836b1c8fea8057660b23ceb8bd08",
+      "cid": "bafyreie22ll5a327kc5zd6rkehzf3vzxtrx6f3z4biddonmwwdog5ttjka",
+      "recordHash": "6bc4972039b9669d54fc40eb4a915e2cc482bec3f7c29d8d3b9a894c03bd2cc6",
+      "coverImage": null,
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "trauma-junkie-1": {
       "slug": "trauma-junkie-1",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2zkoo2a",
-      "cid": "bafyreidex3fntk57xbn6jgpmg6nos2cjhachaorn2hnwqlwlmsxc4slxdu",
-      "contentHash": "8e425392293a13d67c581eef95eef30d8f7e2b259a9a54d7e6e39996959a232f",
+      "cid": "bafyreif6e7p7wgfmnpaqifnhqwphy72zly5dzy7ulpb4wxbczi3zhp7yrm",
+      "recordHash": "f5a5957b65c306ef1a4ff0d4dcc56003ce5d58329c14ca4b2de1026b3a0fff56",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreicrqz6jjokymeucddyaxfv4c555c7chbhqqarmyw2nlrhlmttwv24"
+        },
+        "mimeType": "image/png",
+        "size": 211055
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "trauma-junkie-2": {
       "slug": "trauma-junkie-2",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r32jbj2d",
-      "cid": "bafyreihi2tuo6pbo6rxr5t4paeouug2bhcjguomuepbhqpwspaqeibkq5a",
-      "contentHash": "c766a247828aad97fd209e75410b586b7c9e28f8f3c2e713ea5310cd4a5db432",
+      "cid": "bafyreidovmrsul2k3scz2ajv35zsvscnf6fe5o7d6hxxtlietr3szfcc5m",
+      "recordHash": "44d7c8b455bf78043e17852c971d589319e13b7bdbfd93f904795a9e6d8031d8",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreih76nyuooulafkvlxsm2apaq4kxatllfz7ymp3o5iwpaslp2gxsyu"
+        },
+        "mimeType": "image/png",
+        "size": 149505
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     }
   }
