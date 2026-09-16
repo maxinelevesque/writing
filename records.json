@@ -1,4 +1,93 @@
 {
-  "publication": null,
-  "documents": {}
+  "publication": {
+    "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25",
+    "cid": "bafyreigm42lteuhdyzf2gbmlxogfdmrepcwbmigaez47pen2k3ukqwtlqy",
+    "createdAt": "2026-09-16T22:45:53.939Z"
+  },
+  "documents": {
+    "assistive-vision-pro": {
+      "slug": "assistive-vision-pro",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2m2ez2d",
+      "cid": "bafyreifsn7ydp6ocdh4zgl3bmtm2gdk65lgzdr5cq6smnjqjkocjjaat5u",
+      "contentHash": "0e6d775b1a396996845dbf7defebaf53dbe229060b76dd4a8b67ea25db10277e",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "bend-in-reality": {
+      "slug": "bend-in-reality",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2mzwv2s",
+      "cid": "bafyreihi2qs2f4dbs5uo65ilniyg4dv7focog3dwtgadqim3qfh34nhlgq",
+      "contentHash": "3b4e03859cde21c106eb3e6d5edde065f3fe81773c92682c30944490b70dee1f",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "deus-ex-machina": {
+      "slug": "deus-ex-machina",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2oapi2q",
+      "cid": "bafyreie7eaytyda6iiwvr5flbz3dtzafsq5v5qeoaclsybrwmgadpr6524",
+      "contentHash": "b3feafaf6fe1f7b10b5b27345c4bc6249d623fa81a03a7cd18b1836548763900",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "dont-walk-on-grass": {
+      "slug": "dont-walk-on-grass",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2paj622",
+      "cid": "bafyreihoiosgxkfp2ddndbpfoxgxpuokv2nhjfhwammf7frsrhfphpp6zi",
+      "contentHash": "9bab63b914aec1c5c6608bac1a3517b032bd4f0e5dd93550d38af2a020499f39",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "jade-fortress": {
+      "slug": "jade-fortress",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2qbwi25",
+      "cid": "bafyreigpzxyxyu55ssvhjvtgry6wqgbc6vgr7s4xk2sba5xr47g3svl2oy",
+      "contentHash": "f45ce8a29216ef82ae4d17a0459250a9d52e33f8bec0e81a8d7544ed42b11cc4",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "midwives-of-the-kami": {
+      "slug": "midwives-of-the-kami",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ricr2p",
+      "cid": "bafyreig4xxyajset3osiccxgktbj2xgqgwl2dy3jcpldiwx2pf7vphmm2m",
+      "contentHash": "0bc5d0d043b4ac3776f8cfef27c60e8013b85ca5c97d7a031230254855e28a9e",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "oppenheimer-review": {
+      "slug": "oppenheimer-review",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2sivr25",
+      "cid": "bafyreidqepbybyikv42ne2hytqxh7wqb3oajlcarkzlq7kxsmm3df5jlca",
+      "contentHash": "0513939627104add28ff0a334a6ea650842e12fde701b01183671ad2b1f2aab5",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "substance-between": {
+      "slug": "substance-between",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ulmq25",
+      "cid": "bafyreieshscocnp3ut2xdmtvzsybbhzoa6d5lv5we4xsrqt2c6iabyql5m",
+      "contentHash": "1f5b73dcaa19ef1eafaa185b20e022bc1f0a5c6cfc015c0f234f2dc615c5cb8c",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "the-floor-is-here": {
+      "slug": "the-floor-is-here",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2xhwf2s",
+      "cid": "bafyreicwn343xxeeh7lluk4m4gr4xnx54l4trmgfhhtyci5yshnwig2cbm",
+      "contentHash": "04100e5c2c85894f28390fce2db9a98d05cbf68eea228e7864213ed3e9552564",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "the-no-thing-in-the-cradle": {
+      "slug": "the-no-thing-in-the-cradle",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ykeg22",
+      "cid": "bafyreibmbifmxawlgobq5fhqs3yaejat46t32iikrymx2zthhhlwyxe3vi",
+      "contentHash": "3fa6f4121de239d69d29792304f9530edd0f836b1c8fea8057660b23ceb8bd08",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "trauma-junkie-1": {
+      "slug": "trauma-junkie-1",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2zkoo2a",
+      "cid": "bafyreidex3fntk57xbn6jgpmg6nos2cjhachaorn2hnwqlwlmsxc4slxdu",
+      "contentHash": "8e425392293a13d67c581eef95eef30d8f7e2b259a9a54d7e6e39996959a232f",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    },
+    "trauma-junkie-2": {
+      "slug": "trauma-junkie-2",
+      "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r32jbj2d",
+      "cid": "bafyreihi2tuo6pbo6rxr5t4paeouug2bhcjguomuepbhqpwspaqeibkq5a",
+      "contentHash": "c766a247828aad97fd209e75410b586b7c9e28f8f3c2e713ea5310cd4a5db432",
+      "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
+    }
+  }
 }
