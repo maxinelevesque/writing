@@ -104,9 +104,11 @@ async function main() {
 
   let agent = null;
   if (!DRY_RUN) {
-    const identifier = process.env.ATP_IDENTIFIER;
-    const password = process.env.ATP_APP_PASSWORD;
-    const service = process.env.ATP_PDS_URL || 'https://bsky.social';
+    // trim: secrets pasted on mobile often carry a trailing newline/space,
+    // which the PDS rejects as an invalid identifier/password.
+    const identifier = process.env.ATP_IDENTIFIER?.trim();
+    const password = process.env.ATP_APP_PASSWORD?.trim();
+    const service = (process.env.ATP_PDS_URL || 'https://bsky.social').trim();
     if (!identifier || !password) {
       console.error('Set ATP_IDENTIFIER and ATP_APP_PASSWORD (and optionally ATP_PDS_URL).');
       process.exit(2);
