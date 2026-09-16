@@ -37,6 +37,22 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // ---- helpers ---------------------------------------------------------------
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
+// deterministic JSON (sorted keys) so a record's hash is stable across runs and
+// changes whenever the record's shape or content changes.
+function stableStringify(o) {
+  if (Array.isArray(o)) return '[' + o.map(stableStringify).join(',') + ']';
+  if (o && typeof o === 'object') {
+    return '{' + Object.keys(o).sort().map((k) => JSON.stringify(k) + ':' + stableStringify(o[k])).join(',') + '}';
+  }
+  return JSON.stringify(o);
+}
+
+function loadJSON(name, fallback) {
+  const p = join(ROOT, name);
+  if (existsSync(p)) return JSON.parse(readFileSync(p, 'utf8'));
+  return fallback;
+}
+
 function loadLedger() {
   if (existsSync(LEDGER)) return JSON.parse(readFileSync(LEDGER, 'utf8'));
   return { publication: null, documents: {} };
@@ -72,8 +88,10 @@ function stripMarkdown(md) {
     .trim();
 }
 
-function buildDocRecord(slug, fm, publicationUri) {
+function buildDocRecord(slug, fm, publicationUri, personas) {
   const d = fm.data;
+  // path + site are what consumers use to build the canonical URL (per the
+  // site.standard lexicon); we do not emit a separate canonicalUrl.
   const path = new URL(d.canonical).pathname;   // /writing/<slug> or /dialogues/<slug>
   const rec = {
     $type: COL_DOC,
@@ -82,11 +100,22 @@ function buildDocRecord(slug, fm, publicationUri) {
     path,
     textContent: stripMarkdown(fm.body),
     publishedAt: new Date(`${d.date}T00:00:00.000Z`).toISOString(),
-    canonicalUrl: d.canonical,
   };
   if (d.updated) rec.updatedAt = new Date(`${d.updated}T00:00:00.000Z`).toISOString();
   const description = d.summary || d.subtitle;
   if (description) rec.description = description;
+  if (Array.isArray(d.tags) && d.tags.length) rec.tags = d.tags;
+  // contributors: resolve persona keys -> {did, role?, displayName?}
+  if (Array.isArray(d.contributors) && d.contributors.length) {
+    rec.contributors = d.contributors.map((key) => {
+      const p = personas[key];
+      if (!p || !p.did) throw new Error(`${slug}: unknown/incomplete contributor persona "${key}"`);
+      const c = { did: p.did };
+      if (p.role) c.role = p.role;
+      if (p.displayName) c.displayName = p.displayName;
+      return c;
+    });
+  }
   return rec;
 }
 
@@ -94,13 +123,14 @@ function buildDocRecord(slug, fm, publicationUri) {
 async function main() {
   const ledger = loadLedger();
   const slugs = listSlugs();
+  const pubMeta = loadJSON('publication.json', {});
+  const personas = loadJSON('personas.json', {});
 
-  // Build desired document records + content hashes.
+  // Parse each piece's frontmatter+body once.
   const desired = {};
   for (const slug of slugs) {
     const raw = readFileSync(join(PIECES, slug, 'index.md'), 'utf8');
-    const fm = parse(raw);
-    desired[slug] = { hash: sha256(raw), fm };
+    desired[slug] = { fm: parse(raw) };
   }
 
   let agent = null;
@@ -139,36 +169,69 @@ async function main() {
     await agent.com.atproto.repo.deleteRecord({ repo: agent.did, collection, rkey });
   };
 
-  // 1. Publication record (idempotent via the ledger's stored rkey; preserve
-  //    the original createdAt once set).
+  // Fetch the site's generated OG image for a piece and upload it as a blob.
+  // Returns a blob ref object, or null if the image isn't available yet (a new
+  // piece's OG only exists after the site rebuilds) or is too large.
+  const COVER_MAX = 1024 * 1024 - 1;
+  const ogBase = pubMeta.url || SITE_URL;
+  const fetchCover = async (path) => {
+    if (DRY_RUN) return null;
+    const url = `${ogBase}/og${path}.png`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length > COVER_MAX || buf.length === 0) return null;
+      const up = await agent.com.atproto.repo.uploadBlob(buf, { encoding: 'image/png' });
+      const b = up.data.blob;
+      return { $type: 'blob', ref: { $link: b.ref.toString() }, mimeType: b.mimeType, size: b.size };
+    } catch {
+      return null; // never fail the whole publish over a cover image
+    }
+  };
+
+  // 1. Publication record (metadata from publication.json; idempotent via the
+  //    ledger's stored rkey; preserve the original createdAt once set).
   const createdAt = ledger.publication?.createdAt || new Date().toISOString();
   const pubRecord = {
     $type: COL_PUB,
-    url: SITE_URL,
-    name: PUBLICATION_NAME,
+    url: pubMeta.url || SITE_URL,
+    name: pubMeta.name || PUBLICATION_NAME,
     createdAt,
-    preferences: { showInDiscover: false },
+    preferences: { showInDiscover: pubMeta.showInDiscover ?? false },
   };
+  if (pubMeta.description) pubRecord.description = pubMeta.description;
   const pub = ledger.publication?.uri
     ? await put(COL_PUB, rkeyOf(ledger.publication.uri), pubRecord)
     : await create(COL_PUB, pubRecord);
   const publicationUri = pub.uri;
   ledger.publication = { uri: pub.uri, cid: pub.cid, createdAt };
 
-  // 2. Upsert documents whose content changed (or that are new / missing a uri).
+  // 2. Upsert documents whose built record changed (hashing the record, not the
+  //    source file, so record-shape changes and backfilled coverImages propagate).
   let created = 0, updated = 0, skipped = 0, deleted = 0;
   for (const slug of slugs) {
     const prev = ledger.documents[slug];
-    const { hash, fm } = desired[slug];
-    if (prev && prev.uri && prev.contentHash === hash && prev.site === publicationUri) {
+    const { fm } = desired[slug];
+    const record = buildDocRecord(slug, fm, publicationUri, personas);
+
+    // coverImage: reuse the ledger's blob if we already have one; otherwise try
+    // to fetch the site's generated OG image and upload it. A new piece's OG
+    // doesn't exist until the site rebuilds, so a miss is fine — it backfills on
+    // a later run.
+    let cover = prev?.coverImage;
+    if (!cover) cover = await fetchCover(record.path);
+    if (cover) record.coverImage = cover;
+
+    const recordHash = sha256(stableStringify(record));
+    if (prev && prev.uri && prev.recordHash === recordHash) {
       skipped++;
       continue;
     }
-    const record = buildDocRecord(slug, fm, publicationUri);
     const { uri, cid } = prev?.uri
       ? await put(COL_DOC, rkeyOf(prev.uri), record)
       : await create(COL_DOC, record);
-    ledger.documents[slug] = { slug, uri, cid, contentHash: hash, site: publicationUri };
+    ledger.documents[slug] = { slug, uri, cid, recordHash, coverImage: cover, site: publicationUri };
     if (prev) updated++; else created++;
   }
 

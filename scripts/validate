@@ -16,11 +16,16 @@ const PIECES = join(ROOT, 'pieces');
 const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue']);
 const ALLOWED = new Set([
   'title', 'subtitle', 'date', 'updated', 'kind',
-  'coauthor', 'formerName', 'summary', 'canonical',
+  'coauthor', 'formerName', 'summary', 'canonical', 'tags', 'contributors',
 ]);
 const REQUIRED = ['title', 'date', 'kind', 'canonical'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SITE = 'https://maxine.science';
+const TAG_MAX = 128; // site.standard.document tags: maxGraphemes 128
+
+// persona registry: contributors reference these keys (each maps to a DID).
+let PERSONAS = {};
+try { PERSONAS = JSON.parse(readFileSync(join(ROOT, 'personas.json'), 'utf8')); } catch {}
 
 let errors = 0;
 const fail = (slug, msg) => { errors++; console.error(`  ✗ ${slug}: ${msg}`); };
@@ -76,6 +81,24 @@ for (const slug of slugs) {
   // register consistency: dialogues carry a coauthor; the rest do not.
   if (d.kind === 'dialogue' && !d.coauthor) fail(slug, 'kind: dialogue requires a coauthor');
   if (d.kind && d.kind !== 'dialogue' && d.coauthor) fail(slug, `coauthor is only for kind: dialogue (got kind: ${d.kind})`);
+
+  // tags: optional list of non-empty strings within the lexicon length bound
+  if ('tags' in d) {
+    if (!Array.isArray(d.tags)) fail(slug, 'tags must be a list, e.g. [foo, bar]');
+    else for (const t of d.tags) {
+      if (typeof t !== 'string' || t === '') fail(slug, 'tags entries must be non-empty strings');
+      else if (t.length > TAG_MAX) fail(slug, `tag too long (>${TAG_MAX}): "${t}"`);
+    }
+  }
+
+  // contributors: optional list of persona keys that must exist in personas.json
+  if ('contributors' in d) {
+    if (!Array.isArray(d.contributors)) fail(slug, 'contributors must be a list of persona keys');
+    else for (const c of d.contributors) {
+      if (!PERSONAS[c]) fail(slug, `unknown contributor persona: "${c}" (add it to personas.json)`);
+      else if (!PERSONAS[c].did) fail(slug, `persona "${c}" has no did in personas.json`);
+    }
+  }
 }
 
 if (errors) {

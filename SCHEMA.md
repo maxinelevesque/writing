@@ -21,6 +21,8 @@ coauthor:     string?                      # dialogues only ("Claude"); the cool
 formerName:   string?                      # deadname / pen-name byline attribution on a piece
 summary:      string?                      # one paragraph; feeds atproto record + OG description
 canonical:    https://maxine.science/<seg>/<slug>   # required
+tags:         [string]?                     # topic tags; flow-sequence, e.g. [klein, psychoanalysis]
+contributors: [string]?                     # persona keys from personas.json (AI-authored credit → DID)
 ```
 
 Field order in files follows the block above. Values are double-quoted when they
@@ -56,6 +58,30 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
 4. `kind` is one of the four enum values.
 5. `canonical` matches the URL implied by `kind` and equals the directory slug.
 6. `kind: dialogue` ⇔ `coauthor` is present.
+7. `tags`, if present, is a list of non-empty strings (≤128 chars each).
+8. `contributors`, if present, are persona keys that exist in `personas.json` and have a `did`.
+
+## Repo-level metadata (not per-piece)
+
+Two files at the repo root carry metadata the publish workflow uses, kept out of
+per-piece frontmatter:
+
+- **`publication.json`** — the `site.standard.publication` record's fields:
+  `name`, `url`, `description`, `showInDiscover`. Edit here to change the
+  publication's atproto metadata; the next publish upserts it.
+- **`personas.json`** — a registry of AI-authored personas: `key → { did, role?,
+  displayName? }`. A piece's `contributors: [key]` resolves through this into the
+  document record's `contributors` (each needs a real DID, e.g. a `did:web`).
+
+## How metadata maps to atproto records
+
+`scripts/publish-atproto` builds one `site.standard.document` per piece:
+`title`, `site`, `path` (from `canonical`), `publishedAt` (`date`), `updatedAt`
+(`updated`), `description` (`summary` ‖ `subtitle`), `tags`, `contributors`, and
+`coverImage` (the site's generated OG image, fetched and uploaded as a blob when
+available — a new piece's OG only exists after the site rebuilds, so it backfills
+on a later run). The URL is built by consumers from `site` + `path`; no
+`canonicalUrl` is stored.
 
 ## Dropped fields
 

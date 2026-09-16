@@ -48,10 +48,14 @@ On push to `main` touching `pieces/**`, `.github/workflows/publish.yml`:
 
 1. **validate** — `scripts/validate` against the schema (also runs standalone on PRs via `validate.yml`).
 2. **atproto** — `scripts/publish-atproto` upserts one `site.standard.publication`
-   and one `site.standard.document` per piece; pieces that left `pieces/` are
-   deleted. The lexicon uses TID record keys (assigned by the PDS on first write),
-   so the slug → at-uri/cid map is committed back to [`records.json`](records.json),
+   (from [`publication.json`](publication.json)) and one `site.standard.document`
+   per piece (title, path, dates, description, `tags`, `contributors`, and the
+   site's OG image as `coverImage`); pieces that left `pieces/` are deleted. The
+   lexicon uses TID record keys (assigned by the PDS on first write), so the
+   slug → at-uri/cid map is committed back to [`records.json`](records.json),
    which is what keeps publishing idempotent and the mapping inspectable.
+   Publication metadata lives in `publication.json`; AI-persona contributors (with
+   their DIDs) live in `personas.json`. See [`SCHEMA.md`](SCHEMA.md).
 3. **site rebuild** — a `repository_dispatch` (`content-updated`) to
    `maxinelevesque/maxinelevesque.github.io`, which clones this repo, generates its
    `src/content/**` from `pieces/**` (merging a local `presentation.json` for
