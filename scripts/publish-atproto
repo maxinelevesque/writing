@@ -2,13 +2,15 @@
 // Publish this repo's pieces/ as atproto site.standard.* records.
 //
 // Record shapes reuse decant / sequoia's `site.standard.publication` and
-// `site.standard.document` (see decant packages), but this script owns the
-// publish policy the migration brief requires and which sequoia does NOT do:
-//   - rkey = slug (deterministic), upserted with putRecord — idempotent
-//   - one publication record at rkey "self", idempotent
+// `site.standard.document` (see decant packages). The site.standard.* lexicon
+// uses TID record keys, so the PDS assigns each rkey on first write; this script
+// then owns the publish policy the migration brief requires:
+//   - one publication record, idempotent (reuses its ledger-stored rkey)
+//   - one document per piece, upserted on change (create once, then putRecord to
+//     the same rkey) — idempotent
 //   - records that leave pieces/ are DELETED from the PDS
-//   - a committed records.json ledger (slug -> at-uri, cid) so the mapping is
-//     inspectable in git
+//   - a committed records.json ledger (slug -> at-uri, cid) so the slug↔record
+//     mapping is inspectable in git even though the rkey itself is a TID
 //
 // Credentials via env: ATP_IDENTIFIER, ATP_APP_PASSWORD, ATP_PDS_URL.
 // Run `node scripts/publish-atproto --dry-run` to compute the plan without
@@ -27,7 +29,6 @@ const LEDGER = join(ROOT, 'records.json');
 // ---- publication identity (the site this repo feeds) -----------------------
 const SITE_URL = 'https://maxine.science';
 const PUBLICATION_NAME = 'maxine.science';
-const PUBLICATION_RKEY = 'self';
 const COL_PUB = 'site.standard.publication';
 const COL_DOC = 'site.standard.document';
 
@@ -118,17 +119,28 @@ async function main() {
     await agent.login({ identifier, password });
   }
 
+  // The site.standard.* lexicon uses TID record keys, so the PDS assigns the
+  // rkey on first write (createRecord). We keep the slug -> at-uri mapping in
+  // records.json and reuse each record's own rkey for updates/deletes, which is
+  // what makes publishing idempotent and the mapping inspectable in git.
+  const rkeyOf = (uri) => uri.split('/').pop();
+  const create = async (collection, record) => {
+    if (DRY_RUN) { console.log(`  CREATE ${collection} (server-assigned tid)`); return { uri: `at://DRY/${collection}/DRYTID`, cid: 'DRY' }; }
+    const res = await agent.com.atproto.repo.createRecord({ repo: agent.did, collection, record });
+    return { uri: res.data.uri, cid: res.data.cid };
+  };
   const put = async (collection, rkey, record) => {
-    if (DRY_RUN) { console.log(`  PUT   ${collection}/${rkey}`); return { uri: `at://DRY/${collection}/${rkey}`, cid: 'DRY' }; }
+    if (DRY_RUN) { console.log(`  PUT    ${collection}/${rkey}`); return { uri: `at://DRY/${collection}/${rkey}`, cid: 'DRY' }; }
     const res = await agent.com.atproto.repo.putRecord({ repo: agent.did, collection, rkey, record });
     return { uri: res.data.uri, cid: res.data.cid };
   };
   const del = async (collection, rkey) => {
-    if (DRY_RUN) { console.log(`  DEL   ${collection}/${rkey}`); return; }
+    if (DRY_RUN) { console.log(`  DEL    ${collection}/${rkey}`); return; }
     await agent.com.atproto.repo.deleteRecord({ repo: agent.did, collection, rkey });
   };
 
-  // 1. Publication record (idempotent; preserve original createdAt once set).
+  // 1. Publication record (idempotent via the ledger's stored rkey; preserve
+  //    the original createdAt once set).
   const createdAt = ledger.publication?.createdAt || new Date().toISOString();
   const pubRecord = {
     $type: COL_PUB,
@@ -137,7 +149,9 @@ async function main() {
     createdAt,
     preferences: { showInDiscover: false },
   };
-  const pub = await put(COL_PUB, PUBLICATION_RKEY, pubRecord);
+  const pub = ledger.publication?.uri
+    ? await put(COL_PUB, rkeyOf(ledger.publication.uri), pubRecord)
+    : await create(COL_PUB, pubRecord);
   const publicationUri = pub.uri;
   ledger.publication = { uri: pub.uri, cid: pub.cid, createdAt };
 
@@ -151,15 +165,17 @@ async function main() {
       continue;
     }
     const record = buildDocRecord(slug, fm, publicationUri);
-    const { uri, cid } = await put(COL_DOC, slug, record);
-    ledger.documents[slug] = { uri, cid, contentHash: hash, site: publicationUri };
+    const { uri, cid } = prev?.uri
+      ? await put(COL_DOC, rkeyOf(prev.uri), record)
+      : await create(COL_DOC, record);
+    ledger.documents[slug] = { slug, uri, cid, contentHash: hash, site: publicationUri };
     if (prev) updated++; else created++;
   }
 
   // 3. Delete records for pieces that left pieces/.
   for (const slug of Object.keys(ledger.documents)) {
     if (!desired[slug]) {
-      await del(COL_DOC, slug);
+      await del(COL_DOC, rkeyOf(ledger.documents[slug].uri));
       delete ledger.documents[slug];
       deleted++;
     }
