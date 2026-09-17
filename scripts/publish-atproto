@@ -103,6 +103,10 @@ function buildDocRecord(slug, fm, publicationUri, personas) {
     // canonicalUrl duplicates path+site but is what standard.site consumers
     // (readers, Bluesky) match a posted URL against — working publishers emit it.
     canonicalUrl: d.canonical,
+    // content: the rich body a standard.site reader renders inline. Without it,
+    // readers only have metadata and link out to the site. textContent stays as
+    // the plaintext (search) representation.
+    content: { $type: 'site.standard.content.markdown', markdown: fm.body.trim() },
     textContent: stripMarkdown(fm.body),
     publishedAt: new Date(`${d.date}T00:00:00.000Z`).toISOString(),
   };
