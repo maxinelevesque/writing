@@ -68,9 +68,16 @@
     "incompressible": {
       "slug": "incompressible",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvpwi24oqz2j",
-      "cid": "bafyreif2fpi3tim7ydyac25usmm34ma65hpniptrdxc57kcjkzlptvis4u",
-      "recordHash": "545f395ee397a9051d095f767fe41ec6030672521d02ab5718326d575a369136",
-      "coverImage": null,
+      "cid": "bafyreibhdlwjacv3ccv3azdwe2zrpqsgsgw6k6atcne4gcpueoyoomqjsm",
+      "recordHash": "d0a405d467b1d162d3732037d6b442d5db0306a374294b6f21481b111883235b",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreianyued63xkcpqdllgliijlkt55wj6bmucvd5wekdpreeqy3qzpiq"
+        },
+        "mimeType": "image/png",
+        "size": 57976
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "jade-fortress": {
