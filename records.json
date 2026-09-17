@@ -143,9 +143,16 @@
     "the-no-thing-in-the-cradle": {
       "slug": "the-no-thing-in-the-cradle",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ykeg22",
-      "cid": "bafyreihiwja4lsv773kqhi76d66325ts4sxhb4boqng5eqdmvm56xt4d3q",
-      "recordHash": "97498b0b2c872c47e78eeb74e81d08d69b07854fd224ad6cdf23fc0ae9de1c13",
-      "coverImage": null,
+      "cid": "bafyreify4uv2e66tqfdlswfoekndp5mmqvksfz4n4atzdzo2i7cz7ioyqy",
+      "recordHash": "85a46bfa60d01f5f24716c3b9e2ef85fd00362f2c87d8bdd8c287eb4ac32a551",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreiakzmsuripxtaganu32ihw7bmsbq4jzsbipcyzijh5ievbouuvrle"
+        },
+        "mimeType": "image/png",
+        "size": 65784
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "trauma-junkie-1": {
