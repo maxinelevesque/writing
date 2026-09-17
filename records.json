@@ -38,8 +38,8 @@
     "deus-ex-machina": {
       "slug": "deus-ex-machina",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2oapi2q",
-      "cid": "bafyreifqalzaxk66yhvnnha4ozkm5hteqezhlbcp4w5frtcgu3ick67h4i",
-      "recordHash": "39c99586c59836452a9dadc6111ce7e606751819cf77382c9864931b14735287",
+      "cid": "bafyreibkgmuxzydqhk4qzkuhqvxrt2gyfk5vk2pjr4ibum47cqwpnhxy7y",
+      "recordHash": "4720d9b1fd164f1ffdbbb7ce9c5cc3222c9a758808c7b1bc259c2a95a24b3414",
       "coverImage": {
         "$type": "blob",
         "ref": {
@@ -83,8 +83,8 @@
     "midwives-of-the-kami": {
       "slug": "midwives-of-the-kami",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ricr2p",
-      "cid": "bafyreifgmzbmcsyss4heehmiczqgoihuzjvk35ndokqkserzanslay37e4",
-      "recordHash": "18e512a0f167127c648da7f430a5d5776d52c1987b038f831882d591d11a62d1",
+      "cid": "bafyreicqgakptzqcl37iaji4rcl7u5dn2nic56rcw367b53hibuh44z7fq",
+      "recordHash": "ca5b98a1be806b29b6e2b20f013e72d696a7601713d41e90fb9a3eb37c4ecdc6",
       "coverImage": {
         "$type": "blob",
         "ref": {
@@ -128,8 +128,8 @@
     "the-floor-is-here": {
       "slug": "the-floor-is-here",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2xhwf2s",
-      "cid": "bafyreicaurc65a2h4pv3oj6cinv4efl3ehjbdw3ixodichnulcj3cvryom",
-      "recordHash": "29fd177ddab2e6ec7a3b0f65fecbf4f6113f4970d742bcbae44991e3e24a559d",
+      "cid": "bafyreiaekygtui5ju5wqawekswnjinvcsa4ylsofpxz4jgwdmodnqkpuna",
+      "recordHash": "04ae7b6edc4a23cc7aee819ddb5fe21ecb78a7cb4850ff90563c5135b0fff7a5",
       "coverImage": {
         "$type": "blob",
         "ref": {
@@ -143,16 +143,23 @@
     "the-incompressible": {
       "slug": "the-incompressible",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvpuk3miwt2p",
-      "cid": "bafyreidxupwh6kukz75zyiqclkpnywp2nf2u2msfxo2gz6sstmja4r7bqu",
-      "recordHash": "40eb2f6fc01825d14b59a1de9d9289efbdf83a88196ee6381b48336b7d23f8ec",
-      "coverImage": null,
+      "cid": "bafyreiczqsghoc6xzuljyrie5mjmixayocybdwu6ljay4hfbflf7zlcx3u",
+      "recordHash": "1349af890ab16a7b15b948f24ade822f199ea9610a795fec77d5af762da5d9d5",
+      "coverImage": {
+        "$type": "blob",
+        "ref": {
+          "$link": "bafkreianyued63xkcpqdllgliijlkt55wj6bmucvd5wekdpreeqy3qzpiq"
+        },
+        "mimeType": "image/png",
+        "size": 57976
+      },
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
     "the-no-thing-in-the-cradle": {
       "slug": "the-no-thing-in-the-cradle",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ykeg22",
-      "cid": "bafyreify4uv2e66tqfdlswfoekndp5mmqvksfz4n4atzdzo2i7cz7ioyqy",
-      "recordHash": "85a46bfa60d01f5f24716c3b9e2ef85fd00362f2c87d8bdd8c287eb4ac32a551",
+      "cid": "bafyreifztjxlthufcguswffc7fqblovlckjkm74fmx7q5wflkjlnnmrj6u",
+      "recordHash": "7d0b745ceaf0906428a2c95ea6c6217798e24080d64f3d42aff203f984107c7b",
       "coverImage": {
         "$type": "blob",
         "ref": {
