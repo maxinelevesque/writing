@@ -143,8 +143,8 @@
     "the-incompressible": {
       "slug": "the-incompressible",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvpuk3miwt2p",
-      "cid": "bafyreiczqsghoc6xzuljyrie5mjmixayocybdwu6ljay4hfbflf7zlcx3u",
-      "recordHash": "1349af890ab16a7b15b948f24ade822f199ea9610a795fec77d5af762da5d9d5",
+      "cid": "bafyreidh4v7imso3pdqqt4ew7kq2ehzklqq2jd6swbcfn32xluq4oav2ba",
+      "recordHash": "88f1a9625d2fa4e668e9c9e17d868195fa4de63e1d48c953e27d4ea299747339",
       "coverImage": {
         "$type": "blob",
         "ref": {
