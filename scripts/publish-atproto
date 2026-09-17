@@ -76,6 +76,8 @@ function stripMarkdown(md) {
     .replace(/```[\s\S]*?```/g, ' ')          // fenced code
     .replace(/`([^`]+)`/g, '$1')               // inline code
     .replace(/^<!--[\s\S]*?-->/gm, ' ')        // html comments
+    .replace(/^\s{0,3}\[\^[^\]]+\]:\s?/gm, '') // footnote definitions (keep text, drop label)
+    .replace(/\[\^[^\]]+\]/g, '')              // footnote reference markers
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')     // images
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')   // links -> text
     .replace(/^\s{0,3}#{1,6}\s+/gm, '')        // headings
