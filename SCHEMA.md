@@ -80,8 +80,9 @@ per-piece frontmatter:
 (`updated`), `description` (`summary` ‖ `subtitle`), `tags`, `contributors`, and
 `coverImage` (the site's generated OG image, fetched and uploaded as a blob when
 available — a new piece's OG only exists after the site rebuilds, so it backfills
-on a later run). The URL is built by consumers from `site` + `path`; no
-`canonicalUrl` is stored.
+on a later run). It also emits `canonicalUrl` (= the piece's `canonical`): the URL
+is derivable from `site` + `path`, but standard.site readers and Bluesky match a
+posted URL against `canonicalUrl`, and working publishers include it.
 
 ## Dropped fields
 

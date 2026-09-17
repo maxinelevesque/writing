@@ -100,6 +100,9 @@ function buildDocRecord(slug, fm, publicationUri, personas) {
     title: d.title,
     site: publicationUri,
     path,
+    // canonicalUrl duplicates path+site but is what standard.site consumers
+    // (readers, Bluesky) match a posted URL against — working publishers emit it.
+    canonicalUrl: d.canonical,
     textContent: stripMarkdown(fm.body),
     publishedAt: new Date(`${d.date}T00:00:00.000Z`).toISOString(),
   };
