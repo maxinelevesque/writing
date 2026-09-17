@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+// Mint a did:web identity for an AI-authored persona, controlled by maxine.science.
+//
+//   node scripts/mint-persona <key> "<displayName>" <role> [<handle>]
+//
+// - did = did:web:maxine.science:personas:<key>  (resolves at
+//   https://maxine.science/personas/<key>/did.json — served by the site repo)
+// - handle defaults to <key>.agents.maxine.science
+// - Public parts (did, handle, displayName, role, publicKeyMultibase) go in the
+//   committed personas.json; a piece credits a persona via `contributors: [<key>]`.
+// - The did.json document is written under did-docs/personas/<key>/ (public; the
+//   site copies these into public/personas/).
+// - The PRIVATE key is written ONLY to persona-keys.json, which is gitignored and
+//   never committed. Back it up.
+
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Secp256k1Keypair } from '@atproto/crypto';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const DOMAIN = 'maxine.science';
+const PERSONAS = join(ROOT, 'personas.json');
+const KEYS = join(ROOT, 'persona-keys.json');
+
+const [key, displayName, role, handleArg] = process.argv.slice(2);
+if (!key || !displayName || !role) {
+  console.error('usage: node scripts/mint-persona <key> "<displayName>" <role> [<handle>]');
+  process.exit(2);
+}
+if (!/^[a-z0-9][a-z0-9-]*$/.test(key)) {
+  console.error(`invalid key "${key}": use lowercase letters, digits, and hyphens`);
+  process.exit(2);
+}
+
+const readJSON = (p, fb) => (existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : fb);
+const writeJSON = (p, o) => writeFileSync(p, JSON.stringify(o, Object.keys(o).sort().reduce((a, k) => (a[k] = o[k], a), {}), 2) + '\n');
+
+const personas = readJSON(PERSONAS, {});
+if (personas[key]) {
+  console.error(`persona "${key}" already exists in personas.json — refusing to overwrite its identity`);
+  process.exit(1);
+}
+
+const did = `did:web:${DOMAIN}:personas:${key}`;
+const handle = handleArg || `${key}.agents.${DOMAIN}`;
+
+const kp = await Secp256k1Keypair.create({ exportable: true });
+const publicKeyMultibase = kp.did().slice('did:key:'.length);
+const privateKeyHex = Buffer.from(await kp.export()).toString('hex');
+
+// public registry entry
+personas[key] = { did, handle, displayName, role, publicKeyMultibase };
+writeJSON(PERSONAS, personas);
+
+// private key store (gitignored)
+const keys = readJSON(KEYS, {});
+keys[key] = { did, handle, publicKeyMultibase, privateKeyHex, createdAt: new Date().toISOString() };
+writeJSON(KEYS, keys);
+
+// DID document (public) — the site serves this at /personas/<key>/did.json
+const didDoc = {
+  '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/multikey/v1'],
+  id: did,
+  alsoKnownAs: [`at://${handle}`],
+  verificationMethod: [{
+    id: `${did}#atproto`,
+    type: 'Multikey',
+    controller: did,
+    publicKeyMultibase,
+  }],
+};
+const docDir = join(ROOT, 'did-docs', 'personas', key);
+mkdirSync(docDir, { recursive: true });
+writeFileSync(join(docDir, 'did.json'), JSON.stringify(didDoc, null, 2) + '\n');
+
+console.log(`minted persona "${key}"`);
+console.log(`  did:    ${did}`);
+console.log(`  handle: ${handle}`);
+console.log(`  did.json → did-docs/personas/${key}/did.json (site serves at https://${DOMAIN}/personas/${key}/did.json)`);
+console.log(`  DNS TXT for handle resolution:  _atproto.${handle}  TXT  "did=${did}"`);
+console.log(`  private key saved to persona-keys.json (gitignored — back this up)`);

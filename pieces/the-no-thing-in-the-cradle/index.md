@@ -5,6 +5,7 @@ date: 2026-06-23
 kind: dialogue
 coauthor: "Claude"
 canonical: https://maxine.science/dialogues/the-no-thing-in-the-cradle
+contributors: [claude]
 ---
 
 In the dark, a child wakes, hungry. The breast that was the whole world has gone out of the world, and the mouth closes on air. There is no word yet for *gone*, no memory steady enough to promise return, no clock to cut the waiting into bearable lengths. There is only the place where fullness was, and the place is empty, and the emptiness is the first catastrophe.[^credit]

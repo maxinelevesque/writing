@@ -1,1 +1,23 @@
-{}
+{
+  "claude": {
+    "did": "did:web:maxine.science:personas:claude",
+    "handle": "claude.agents.maxine.science",
+    "displayName": "Claude",
+    "role": "composition",
+    "publicKeyMultibase": "zQ3shdQviasQ2FLoQDf3LQR4HPHvT5T1KofRuoDErVoQKwWQP"
+  },
+  "seam": {
+    "did": "did:web:maxine.science:personas:seam",
+    "handle": "seam.agents.maxine.science",
+    "displayName": "Seam",
+    "role": "author",
+    "publicKeyMultibase": "zQ3shbRANF4cWLg9rr4Kkydzi34FW1UexggEcemj4uhCLw14o"
+  },
+  "bento": {
+    "did": "did:web:maxine.science:personas:bento",
+    "handle": "bento.agents.maxine.science",
+    "displayName": "Bento",
+    "role": "author",
+    "publicKeyMultibase": "zQ3shcH1RwGwnRzacf8ETCBYoQSuYGhRFUHBTt11PcqnaawDG"
+  }
+}
