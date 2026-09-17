@@ -1,7 +1,7 @@
 {
   "publication": {
     "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25",
-    "cid": "bafyreiah5k2p7znzs6anl67qrueccbh3yzmklxofypg4rhymschwyctzx4",
+    "cid": "bafyreifycfubu645l7arl7g2m5rqkaqprxpf2emrcxoa7tzuhnkibmmtv4",
     "createdAt": "2026-09-16T22:45:53.939Z"
   },
   "documents": {
@@ -143,8 +143,8 @@
     "the-no-thing-in-the-cradle": {
       "slug": "the-no-thing-in-the-cradle",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvo7r2ykeg22",
-      "cid": "bafyreie22ll5a327kc5zd6rkehzf3vzxtrx6f3z4biddonmwwdog5ttjka",
-      "recordHash": "6bc4972039b9669d54fc40eb4a915e2cc482bec3f7c29d8d3b9a894c03bd2cc6",
+      "cid": "bafyreihiwja4lsv773kqhi76d66325ts4sxhb4boqng5eqdmvm56xt4d3q",
+      "recordHash": "97498b0b2c872c47e78eeb74e81d08d69b07854fd224ad6cdf23fc0ae9de1c13",
       "coverImage": null,
       "site": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.publication/3mvo7r2e7ur25"
     },
