@@ -3,7 +3,9 @@ title: "Don't walk on the grass"
 date: 2023-10-24
 kind: fiction
 formerName: "Max Collard"
+summary: "A short story set among the lawns and deer parks of Oxford, where a rule about who may walk on the grass quietly marks the lines of belonging."
 canonical: https://maxine.science/writing/dont-walk-on-grass
+tags: [fiction, short-story, oxford]
 ---
 
 “Don’t walk on the grass. Only Fellows can walk on the grass,” Asif warns us, unserious. I puncture the steadfast walls of immaculate stone, climbing through a tiny doorway punched out of the massive wooden gates a foot off the ground. The air is thick with the mist that bathed our walk from the Mathematics Institute.

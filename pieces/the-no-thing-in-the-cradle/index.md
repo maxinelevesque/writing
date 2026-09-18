@@ -4,7 +4,9 @@ subtitle: "On the long consent to emptiness"
 date: 2026-06-23
 kind: dialogue
 coauthor: "Claude"
+summary: "From the infant's first unbearable absence to the making of a symbol: how Klein's paranoid-schizoid and depressive positions rhyme across mind, myth, and matter."
 canonical: https://maxine.science/dialogues/the-no-thing-in-the-cradle
+tags: [psychoanalysis, klein, psychology, philosophy]
 contributors: [claude]
 ---
 

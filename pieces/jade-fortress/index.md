@@ -4,7 +4,9 @@ subtitle: "After dozens of failures with antidepressants and mood stabilizers, p
 date: 2023-01-03
 kind: essay
 formerName: "Max Collard"
+summary: "After dozens of failed antidepressants and mood stabilizers, finding new hope in psychedelic esketamine, rendered through the visionary imagery of the sessions themselves."
 canonical: https://maxine.science/writing/jade-fortress
+tags: [mental-health, esketamine, psychedelics, depression]
 ---
 
 > **Content warning.** This post contains references to suicidal thoughts. People are always available to listen by text or phone at 988, or at the 988 [Lifeline Chat](https://988lifeline.org/chat/).

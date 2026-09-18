@@ -4,7 +4,9 @@ subtitle: "When one is depressed, one lives in a depressed world."
 date: 2022-12-17
 kind: essay
 formerName: "Max Collard"
+summary: "On depression not as a mood but as a change in the world one inhabits, told through the small daily touchstones that hold a life together."
 canonical: https://maxine.science/writing/bend-in-reality
+tags: [depression, mental-health, phenomenology]
 ---
 
 Every day presents us with its own lived character; yet, there are some things that keep us grounded—touchstones, totems that we know the feel of intimately, that allow us to hold on to the continuity of life despite its constant flux.

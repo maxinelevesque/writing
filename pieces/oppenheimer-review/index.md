@@ -4,7 +4,9 @@ subtitle: "A review of Oppenheimer (2023)."
 date: 2023-08-24
 kind: essay
 formerName: "Max Collard"
+summary: "A review of Nolan's Oppenheimer that moves past the moralizing takes to the film's real subject: the struggle against world-ending time."
 canonical: https://maxine.science/writing/oppenheimer-review
+tags: [film, review, oppenheimer]
 ---
 
 > **Caution.** *Spoilers.*

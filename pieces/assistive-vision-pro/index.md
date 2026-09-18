@@ -3,7 +3,9 @@ title: "Vision Pro: Assistive device"
 date: 2024-04-23
 kind: essay
 formerName: "Maxine Collard"
+summary: "How the Apple Vision Pro works as an assistive device for someone albino, in a world of screens and sensors not built for low vision."
 canonical: https://maxine.science/writing/assistive-vision-pro
+tags: [accessibility, disability, vision-pro, assistive-technology, low-vision]
 ---
 
 I’m albino. My eyes are … different.

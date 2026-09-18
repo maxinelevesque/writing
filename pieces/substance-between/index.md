@@ -4,7 +4,9 @@ subtitle: "How I introduced my old blog."
 date: 2022-12-13
 kind: essay
 formerName: "Max Collard"
+summary: "Introducing an old blog: how psychedelic esketamine reshaped the author's relationship to her own mind, in ways language keeps failing to hold."
 canonical: https://maxine.science/writing/substance-between
+tags: [mental-health, esketamine, writing]
 ---
 
 In early 2022, after more than a decade trying to find something to ease my mental suffering, I started using the psychedelic medication esketamine under the direction of my doctors. My experiences on this medicine continually challenges my perspective on my own mind and my relationship to the world around me, often in ways that language fails to capture.

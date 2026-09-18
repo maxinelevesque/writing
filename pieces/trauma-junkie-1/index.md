@@ -3,7 +3,9 @@ title: "Trauma Junkie: I"
 date: 2024-09-17
 kind: fiction
 formerName: "Emma Fontaine"
+summary: "Fiction: in the aftermath of a war and a Reunification, a narrator haunted by a rotting tank and the emptied Institute above the neighborhood."
 canonical: https://maxine.science/writing/trauma-junkie-1
+tags: [fiction, short-story, war, dystopia]
 ---
 
 It’s Christmastime, and over the hills, in the faraway furrows of one of those endless tracts of half-submerged land, a main battle tank sits in a ditch, decomposing, festering. My tank.

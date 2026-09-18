@@ -3,7 +3,9 @@ title: "Trauma Junkie: II"
 date: 2024-12-30
 kind: fiction
 formerName: "Emma Fontaine"
+summary: "Fiction: emerging from dissociation to Ravel's Bolero at the Presidio, a narrator reassembles the world piece by piece."
 canonical: https://maxine.science/writing/trauma-junkie-2
+tags: [fiction, short-story, dissociation]
 ---
 
 The doors open. The sign outside throws itself at me:
