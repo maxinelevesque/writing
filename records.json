@@ -128,8 +128,8 @@
     "straw-holes": {
       "slug": "straw-holes",
       "uri": "at://did:plc:ybmxlogro7nxttbwo5xqjgga/site.standard.document/3mvqvqgokto22",
-      "cid": "bafyreigeokmzhscnvgztjt3bcgbrkjtekha2nhcj5dgkhf6afvfemr2l3a",
-      "recordHash": "c2ba485a3a95b0bf9458f2d92f1456407498b9e7716ce49e9ba06f39b129fc7d",
+      "cid": "bafyreietzmqhgxnzw42utzofkw7qwa3ernvsl5o23mtgnhyg2ufqhljscy",
+      "recordHash": "e841bae6e0c513fd1911861697ea1cd59b1bf9b54cd764853a3ada6046cf74fa",
       "coverImage": {
         "$type": "blob",
         "ref": {
