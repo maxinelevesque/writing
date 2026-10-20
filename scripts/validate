@@ -16,7 +16,7 @@ const PIECES = join(ROOT, 'pieces');
 const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue']);
 const ALLOWED = new Set([
   'title', 'subtitle', 'date', 'updated', 'kind',
-  'coauthor', 'formerName', 'summary', 'canonical', 'tags', 'contributors',
+  'coauthor', 'coauthorNote', 'formerName', 'summary', 'canonical', 'tags', 'contributors',
 ]);
 const REQUIRED = ['title', 'date', 'kind', 'canonical'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

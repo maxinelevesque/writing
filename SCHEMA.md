@@ -18,6 +18,7 @@ date:         YYYY-MM-DD                   # required — first publication
 updated:      YYYY-MM-DD?                  # optional — last substantive revision
 kind:         essay | fiction | note | dialogue   # required
 coauthor:     string?                      # dialogues only ("Claude"); the cool-register signal
+coauthorNote: string?                      # dialogues only; one sentence rendered as a footnote on the coauthor byline
 formerName:   string?                      # deadname / pen-name byline attribution on a piece
 summary:      string?                      # one paragraph; feeds atproto record + OG description
 canonical:    https://maxine.science/<seg>/<slug>   # required
@@ -39,6 +40,10 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
   - `dialogue` → the site's **dialogues** collection → `/dialogues/<slug>`
 - **coauthor** — set to `"Claude"` on dialogues. Required iff `kind: dialogue`; forbidden
   otherwise. This is what the site reads as the "cool register" signal.
+- **coauthorNote** — optional, dialogues only. One or two sentences shown as a footnote
+  hanging off the coauthor name in the byline and printed at the foot of the page: the
+  division of labour, and, where a session chose a name for itself, that name. The
+  byline itself always says `Claude`.
 - **formerName** — an intentional, kept byline field: deadname attribution on older pieces
   (`Max Collard` / `Maxine Collard`) and pen names on fiction (`Emma Fontaine`). It is
   never scrubbed and never rewritten out of history. See the ground rules in `PROMPT.md`.

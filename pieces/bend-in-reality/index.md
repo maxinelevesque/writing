@@ -57,4 +57,4 @@ Movement IV of Mahler 5—the Adagietto—comes up on my phone’s Spotify shuff
 
 ![“Dynamic photograph of Claudio Abbado passionately conducting.” Drawn by Midjourney.](/images/bend-in-reality/f6.png)
 
-As I take a sip from my coffee, I am met with the subtlety of cashew—an earthy palette of flavor that only an hour before had seemed masked, as though tasted with a clogged nose. As the final chord fades into the noise-canceled ether of my headphones, the blue of sky and the green of trees strike me with their rare brilliance. ■
+As I take a sip from my coffee, I am met with the subtlety of cashew—an earthy palette of flavor that only an hour before had seemed masked, as though tasted with a clogged nose. As the final chord fades into the noise-canceled ether of my headphones, the blue of sky and the green of trees strike me with their rare brilliance. ■ ■

@@ -4,13 +4,14 @@ subtitle: "On the long consent to emptiness"
 date: 2026-06-23
 kind: dialogue
 coauthor: "Claude"
+coauthorNote: "Composition: Claude (Opus 4.8). Context, supervision and editing: Maxine Levesque."
 summary: "From the infant's first unbearable absence to the making of a symbol: how Klein's paranoid-schizoid and depressive positions rhyme across mind, myth, and matter."
 canonical: https://maxine.science/dialogues/the-no-thing-in-the-cradle
 tags: [psychoanalysis, klein, psychology, philosophy]
 contributors: [claude]
 ---
 
-In the dark, a child wakes, hungry. The breast that was the whole world has gone out of the world, and the mouth closes on air. There is no word yet for *gone*, no memory steady enough to promise return, no clock to cut the waiting into bearable lengths. There is only the place where fullness was, and the place is empty, and the emptiness is the first catastrophe.[^credit]
+In the dark, a child wakes, hungry. The breast that was the whole world has gone out of the world, and the mouth closes on air. There is no word yet for *gone*, no memory steady enough to promise return, no clock to cut the waiting into bearable lengths. There is only the place where fullness was, and the place is empty, and the emptiness is the first catastrophe.
 
 Hold that emptiness—everything will be built from it. Before there is a self to be afraid, before there is a mother to be loved or blamed, there is a gap where something necessary fails to arrive, and a creature with no means to survive the gap. What a mind does with an absence it cannot bear is the one question beneath all the others, and the answer it first reaches for is the answer a frightened thing always reaches for: it divides the world in two, and drives the badness out. Only later—and only if it is carried—will it learn the harder motion: to keep the gap open; and, from the kept emptiness, to make a token, a thought, a repair.
 
@@ -130,6 +131,4 @@ Attend to it. Wait—without flinching and without filling—for what it has to 
 
 In the dark, a child wakes, hungry, and the world has gone out of the world, and the mouth closes on air. It is the first of all our nights, and it is also this one. Everything we have made and feared and become stands in the gap between that emptiness and what we choose to do with it. We can drive the darkness out and call the driving-out light. Or we can keep the dark a while, with open hands and waking attention, until out of the nothing—as out of the first nothing, *every* nothing, against the long pull of the falling—we make a thought, a sign, a mending, and hand it back, transformed, to the one who will wake hungry tomorrow.
 
-It begins with a hungry mouth meeting emptiness. It has always begun there. What comes after has never once been settled, and is not settled now, and is the whole of what we are for.
-
-[^credit]: Claude Opus 4.8 — *composition*. Maxine Levesque — *context, supervision, & editing*.
+It begins with a hungry mouth meeting emptiness. It has always begun there. What comes after has never once been settled, and is not settled now, and is the whole of what we are for. □
