@@ -15,7 +15,7 @@ import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node
 import { join, dirname, normalize, isAbsolute, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse, parseContributor } from './lib/frontmatter.mjs';
-import { figures, relativeTargets } from './lib/figures.mjs';
+import { figures, relativeTargets, reportChecks } from './lib/figures.mjs';
 import { SOURCE_RE, checkSourceAgainst } from './lib/source.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -122,6 +122,9 @@ function checkBody(unit, d, body) {
   const { found, problems } = figures(body);
   for (const p of problems) fail(label, p);
   if (found.length && d.kind !== 'report') fail(label, `figures are only rendered for kind: report (got kind: ${d.kind})`);
+  const conventions = reportChecks(body, d.kind);
+  for (const e of conventions.errors) fail(label, e);
+  for (const w of conventions.warnings) warn(label, w);
   const ids = new Set();
   for (const f of found) {
     if (ids.has(f.id)) fail(label, `figure id #${f.id} is used twice`);

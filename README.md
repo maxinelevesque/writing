@@ -12,7 +12,8 @@ from this repo, never edited in place there.
 Content is plain Markdown with minimal *semantic* frontmatter. Presentation choices
 (theme, background system, read time) live downstream in the site, keyed by slug.
 The frontmatter schema is documented in [`SCHEMA.md`](SCHEMA.md) and enforced by
-`scripts/validate` — the only gate on publishing.
+`scripts/validate` — the only gate on publishing. House style for research reports
+(citations, displays, proof links, the page switch) is in [`STYLE.md`](STYLE.md).
 
 ## Draft/publish separation
 
