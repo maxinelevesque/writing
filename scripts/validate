@@ -6,22 +6,30 @@
 // Dependency-free: standard Node only.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, normalize, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse } from './lib/frontmatter.mjs';
+import { parse, parseContributor } from './lib/frontmatter.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PIECES = join(ROOT, 'pieces');
 
-const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue']);
+const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue', 'report']);
+// kind -> canonical URL segment
+const SEGMENT = { essay: 'writing', fiction: 'writing', note: 'writing', dialogue: 'dialogues', report: 'research' };
+// kinds that may (report) or must (dialogue) name a coauthor
+const COAUTHORED = new Set(['dialogue', 'report']);
 const ALLOWED = new Set([
   'title', 'subtitle', 'date', 'updated', 'kind',
   'coauthor', 'coauthorNote', 'formerName', 'summary', 'canonical', 'tags', 'contributors',
+  'readAloud',
 ]);
 const REQUIRED = ['title', 'date', 'kind', 'canonical'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SITE = 'https://maxine.science';
 const TAG_MAX = 128; // site.standard.document tags: maxGraphemes 128
+const ROLE_MAX = 100; // site.standard.document contributor role: maxGraphemes 100
+const READ_ALOUD_EXT = /\.txt$/;
+const graphemes = (s) => [...new Intl.Segmenter().segment(s)].length;
 
 // persona registry: contributors reference these keys (each maps to a DID).
 let PERSONAS = {};
@@ -72,15 +80,31 @@ for (const slug of slugs) {
   if (d.kind && !KINDS.has(d.kind)) fail(slug, `kind must be one of ${[...KINDS].join(', ')} (got "${d.kind}")`);
 
   // canonical must resolve to the site path implied by kind and equal the slug
-  if (d.canonical) {
-    const seg = d.kind === 'dialogue' ? 'dialogues' : 'writing';
+  if (d.canonical && SEGMENT[d.kind]) {
+    const seg = SEGMENT[d.kind];
     const want = `${SITE}/${seg}/${slug}`;
     if (d.canonical !== want) fail(slug, `canonical must be ${want} (got "${d.canonical}")`);
   }
 
-  // register consistency: dialogues carry a coauthor; the rest do not.
+  // register consistency: dialogues carry a coauthor; reports may; the rest do not.
   if (d.kind === 'dialogue' && !d.coauthor) fail(slug, 'kind: dialogue requires a coauthor');
-  if (d.kind && d.kind !== 'dialogue' && d.coauthor) fail(slug, `coauthor is only for kind: dialogue (got kind: ${d.kind})`);
+  if (d.kind && !COAUTHORED.has(d.kind) && d.coauthor) fail(slug, `coauthor is only for kind: dialogue or report (got kind: ${d.kind})`);
+  if (d.coauthorNote && !d.coauthor) fail(slug, 'coauthorNote requires a coauthor');
+
+  // readAloud: an authored plain-text companion inside the piece's directory
+  if ('readAloud' in d) {
+    const rel = d.readAloud;
+    const norm = typeof rel === 'string' ? normalize(rel) : '';
+    if (!rel || isAbsolute(rel) || norm.startsWith('..') || norm.split(sep).includes('..')) {
+      fail(slug, `readAloud must be a relative path inside ${slug}/ (got "${rel}")`);
+    } else if (!READ_ALOUD_EXT.test(rel)) {
+      fail(slug, `readAloud must be a .txt file (got "${rel}")`);
+    } else {
+      let ok = false;
+      try { ok = statSync(join(PIECES, slug, norm)).isFile(); } catch {}
+      if (!ok) fail(slug, `readAloud file not found: ${slug}/${rel}`);
+    }
+  }
 
   // tags: optional list of non-empty strings within the lexicon length bound
   if ('tags' in d) {
@@ -94,9 +118,19 @@ for (const slug of slugs) {
   // contributors: optional list of persona keys that must exist in personas.json
   if ('contributors' in d) {
     if (!Array.isArray(d.contributors)) fail(slug, 'contributors must be a list of persona keys');
-    else for (const c of d.contributors) {
-      if (!PERSONAS[c]) fail(slug, `unknown contributor persona: "${c}" (add it to personas.json)`);
-      else if (!PERSONAS[c].did) fail(slug, `persona "${c}" has no did in personas.json`);
+    else {
+      const seen = new Set();
+      for (const entry of d.contributors) {
+        const { key, role } = parseContributor(entry);
+        if (!PERSONAS[key]) fail(slug, `unknown contributor persona: "${key}" (add it to personas.json)`);
+        else if (!PERSONAS[key].did) fail(slug, `persona "${key}" has no did in personas.json`);
+        if (seen.has(key)) fail(slug, `contributor "${key}" listed twice`);
+        seen.add(key);
+        if (role !== null) {
+          if (role === '') fail(slug, `contributor "${key}" has an empty role`);
+          else if (graphemes(role) > ROLE_MAX) fail(slug, `contributor "${key}" role too long (>${ROLE_MAX})`);
+        }
+      }
     }
   }
 }

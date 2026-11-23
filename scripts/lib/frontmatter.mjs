@@ -28,9 +28,35 @@ function parseValue(v) {
   if (v.startsWith('[') && v.endsWith(']')) {
     const inner = v.slice(1, -1).trim();
     if (inner === '') return [];
-    return inner.split(',').map((s) => unquote(s.trim())).filter((s) => s !== '');
+    return splitFlow(inner).map((s) => unquote(s.trim())).filter((s) => s !== '');
   }
   return unquote(v);
+}
+
+// Split a flow-sequence body on commas outside double quotes, so a quoted
+// entry may itself contain commas (e.g. a contributor role).
+function splitFlow(inner) {
+  const parts = [];
+  let cur = '';
+  let quoted = false;
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i];
+    if (quoted && ch === '\\' && i + 1 < inner.length) { cur += ch + inner[++i]; continue; }
+    if (ch === '"') quoted = !quoted;
+    if (ch === ',' && !quoted) { parts.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  parts.push(cur);
+  return parts;
+}
+
+// A contributors entry is a persona key, optionally with this piece's role for
+// that persona: `claude` or "claude: Lean formalization". The role overrides
+// the persona's default role from personas.json.
+export function parseContributor(entry) {
+  const i = entry.indexOf(':');
+  if (i === -1) return { key: entry.trim(), role: null };
+  return { key: entry.slice(0, i).trim(), role: entry.slice(i + 1).trim() };
 }
 
 function unquote(v) {
