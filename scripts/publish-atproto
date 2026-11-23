@@ -217,8 +217,11 @@ async function main() {
   const pub = ledger.publication?.uri
     ? await put(COL_PUB, rkeyOf(ledger.publication.uri), pubRecord)
     : await create(COL_PUB, pubRecord);
-  const publicationUri = pub.uri;
-  ledger.publication = { uri: pub.uri, cid: pub.cid, createdAt };
+  // A dry run's put returns a placeholder uri; keep the ledger's real one so the
+  // documents' `site` field, and so their record hashes, match what a real run
+  // would build. Otherwise every document reads as changed.
+  const publicationUri = (DRY_RUN && ledger.publication?.uri) || pub.uri;
+  if (!DRY_RUN) ledger.publication = { uri: pub.uri, cid: pub.cid, createdAt };
 
   // 2. Upsert documents whose built record changed (hashing the record, not the
   //    source file, so record-shape changes and backfilled coverImages propagate).
@@ -257,7 +260,7 @@ async function main() {
     }
   }
 
-  saveLedger(ledger);
+  if (!DRY_RUN) saveLedger(ledger); // a dry run never touches records.json
   console.log(`publish-atproto${DRY_RUN ? ' (dry-run)' : ''}: publication ${publicationUri}`);
   console.log(`  documents: ${created} created, ${updated} updated, ${skipped} unchanged, ${deleted} deleted`);
 }
