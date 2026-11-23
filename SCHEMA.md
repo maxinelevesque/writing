@@ -118,6 +118,10 @@ blocks:
 
 A marker inside fenced code is an example, not a figure.
 
+The only other marker is `<!-- page-switch -->`, at most once in a report, where the text
+introduces the page switch. A report also needs an abstract. Both are described in
+[`STYLE.md`](STYLE.md), with the house style for citations, displays and proof links.
+
 ## SOURCE
 
 A piece written in another repository and exported here carries a `SOURCE` file:
@@ -160,6 +164,9 @@ Removing `SOURCE` from a piece that had one fails too. Fix typos upstream.
 13. With `--against <ref>`: an exported piece that changed since `<ref>` has a new `SOURCE`
     (see [SOURCE](#source)).
 14. An exported draft's slug is not also in `pieces/`.
+15. A report has an abstract (`> **Abstract.** …`) and at most one `<!-- page-switch -->`;
+    other kinds have no page switch. Bare URLs or DOIs in a report's text, and proof links
+    labelled "lean", are warnings (see `STYLE.md`).
 
 ## Repo-level metadata (not per-piece)
 

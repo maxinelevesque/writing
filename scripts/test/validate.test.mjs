@@ -22,6 +22,8 @@ canonical: https://maxine.science/research/r
 readAloud: read-aloud.txt
 ${extra}---
 
+> **Abstract.** What the report shows.
+
 Text.[^n]
 
 <!-- figure #fig-bar component="bar" calc="tree" -->
@@ -178,4 +180,22 @@ test('SOURCE: an exported piece changes only by re-export', (t) => {
   // Removing SOURCE is not a way around it.
   rmSync(join(r.root, 'pieces/r/SOURCE'));
   fails(r.run('--against', 'HEAD'), /SOURCE was removed/);
+});
+
+test('report conventions: abstract, one page switch, citations and proof links', (t) => {
+  const run = (index) => { const r = repo(t); r.piece('pieces/r', { index }); return r.run(); };
+  fails(run(report().replace('> **Abstract.** What the report shows.\n', '')), /needs an abstract/);
+  passes(run(report({ body: '\nIntroducing the switch.\n\n<!-- page-switch -->\n' })));
+  fails(run(report({ body: '\n<!-- page-switch -->\n\nText.\n\n<!-- page-switch -->\n' })), /appears 2 times/);
+
+  const warned = run(report({ body: '\nSee https://doi.org/10.1000/xyz and <https://example.org/a>.[^c] Proved [lean](https://example.org/A.lean#L3).\n\n[^c]: Author, [*Title*](https://doi.org/10.1000/abc).\n' }));
+  passes(warned);
+  assert.match(warned.out, /bare link or DOI "https:\/\/doi\.org\/10\.1000\/xyz/);
+  assert.match(warned.out, /bare link or DOI "https:\/\/example\.org\/a/);
+  assert.doesNotMatch(warned.out, /abc/, 'a link on the title is the right form');
+  assert.match(warned.out, /proof link labelled "lean"/);
+
+  const r = repo(t);
+  r.write('pieces/e/index.md', '---\ntitle: "E"\ndate: 2026-01-01\nkind: essay\ncanonical: https://maxine.science/writing/e\n---\n\n<!-- page-switch -->\n\nText.\n');
+  fails(r.run(), /only rendered for kind: report/);
 });

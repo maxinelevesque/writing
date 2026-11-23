@@ -101,3 +101,34 @@ export function relativeTargets(body) {
   }
   return out;
 }
+
+// Report conventions beyond figures (STYLE.md): the page-switch marker, the
+// abstract, and links. Returns { errors, warnings } as messages.
+export function reportChecks(body, kind) {
+  const errors = [];
+  const warnings = [];
+  const bs = blocks(body);
+  const switches = bs.filter((b) => /^<!--\s*page-switch\s*-->$/.test(b.text.trim()));
+  if (switches.length > 1) errors.push(`<!-- page-switch --> appears ${switches.length} times (lines ${switches.map((b) => b.line).join(', ')}); a piece introduces its switch once`);
+  if (switches.length && kind !== 'report') errors.push('<!-- page-switch --> is only rendered for kind: report');
+  for (const b of bs) {
+    const t = b.text.trim();
+    if (/^<!--/.test(t) && !/^<!--\s*(figure\b|page-switch\s*-->)/.test(t) && /^<!--\s*[a-z-]+\s*(#|[a-z-]+=|-->)/.test(t)) {
+      warnings.push(`line ${b.line}: unknown marker ${t.split(/\s+/).slice(0, 2).join(' ')}; only "figure" and "page-switch" mean anything to the site`);
+    }
+  }
+  if (kind !== 'report') return { errors, warnings };
+  if (!bs.some((b) => /^>\s*\*\*Abstract[.:]?\*\*/i.test(b.text.trim()))) {
+    errors.push('a research report needs an abstract: a blockquote starting "> **Abstract.**"');
+  }
+  for (const b of bs) {
+    const prose = b.text.replace(/`[^`]*`/g, '').replace(/\]\([^)]*\)/g, '](…)').replace(/<(?![a-z][a-z0-9+.-]*:)[^>]*>/gi, '');
+    for (const m of prose.matchAll(/\b(?:https?:\/\/\S+|doi:\s*10\.\S+|\b10\.\d{4,9}\/\S+)/gi)) {
+      warnings.push(`line ${b.line}: bare link or DOI "${m[0].slice(0, 40)}"; put the link on the title instead (STYLE.md, Citations)`);
+    }
+    for (const m of b.text.matchAll(/\[(?:lean|Lean|proof)\]\(([^)]*\.lean[^)]*)\)/g)) {
+      warnings.push(`line ${b.line}: a proof link labelled "${m[0].slice(1, m[0].indexOf(']'))}"; link the proved statement itself (STYLE.md, Proofs)`);
+    }
+  }
+  return { errors, warnings };
+}
