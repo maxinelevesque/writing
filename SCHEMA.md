@@ -6,8 +6,11 @@ facts about the piece, never about how a site renders it. Presentation choices
 keyed by slug (see [Dropped fields](#dropped-fields)).
 
 `scripts/validate` enforces this schema and is the only gate on publishing
-(`.github/workflows/validate.yml` runs it on every push/PR touching `pieces/**`).
-Files under `drafts/` are free-form and are **not** validated or consumed.
+(`.github/workflows/validate.yml` runs it on every push/PR touching `pieces/**`,
+`drafts/**` or `scripts/**`). Files under `drafts/` are free-form and are **not**
+validated or consumed, with one exception: an **exported draft**, a
+`drafts/<slug>/` directory holding a `SOURCE` file, is validated like a piece
+(except that its `date` may wait until publication). See [SOURCE](#source).
 
 ## Fields
 
@@ -67,6 +70,73 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
   where `<slug>` is the directory name. It exists so the semantic source, not the
   renderer, owns each piece's canonical identity.
 
+## Files in a piece
+
+A piece is a directory. Besides `index.md` it may hold only:
+
+```
+pieces/<slug>/
+  index.md        frontmatter + prose
+  SOURCE          exported pieces only (see below)
+  read-aloud.txt  the readAloud companion, wherever the field points
+  assets/         images: .svg .png .jpg .jpeg .webp .gif
+  figures/        figure code for the site: .js .mjs .css .json .md (tests: *.test.mjs)
+```
+
+No symbolic links. Relative links and images in the body must stay inside the
+directory and name a file that exists; images must be in `assets/`, and other
+relative links may point only into `assets/` or at the `readAloud` file. The
+consumers rewrite these paths (the site serves them from
+`https://maxine.science/files/<slug>/…`). The validator warns when a piece's files
+add up to more than 5 MB.
+
+## Figures
+
+Research reports (`kind: report`) may carry interactive figures, written as three
+blocks:
+
+```md
+<!-- figure #fig-reduction component="reduction" calc="tree" -->
+
+![Alt text that carries the figure's content, not just its name.](assets/fig-reduction.svg)
+
+**Figure 3. Reduction (tree calculus).** Caption …
+```
+
+- The **marker** is an HTML comment, so GitHub and other Markdown renderers hide it.
+  It needs an `#id` (lowercase letters, digits and hyphens, unique in the piece) and
+  a `component`; any other `key="value"` attributes are passed to the component.
+  `layout` is not allowed: how wide a figure is drawn is the site's choice.
+- The **still** is an image in `assets/` with alt text. It is what every reader
+  without the live figure sees: GitHub, atproto readers, and the site without
+  JavaScript.
+- The **caption** is the paragraph after the image.
+- **`figures/<component>.js`** (or `.mjs`) must exist. maxine.science runs figure
+  code only from a `writing` commit pinned in its own repo, so merging here never
+  changes the code readers run. The component contract is in maxine.science's
+  `SPEC.md` ("Figure components").
+
+A marker inside fenced code is an example, not a figure.
+
+## SOURCE
+
+A piece written in another repository and exported here carries a `SOURCE` file:
+one line, `<repository> <40-character commit>`, e.g.
+`formal-computation 0123456789abcdef0123456789abcdef01234567`.
+
+Exported pieces change upstream. The export script writes the piece into a branch
+here (`drafts/<slug>/` before publication, `pieces/<slug>/` after) with an updated
+`SOURCE`, and opens a PR. An edit made directly here would be lost at the next
+export, so `scripts/validate --against <ref>` fails when an exported piece differs
+from `<ref>` but its `SOURCE` doesn't. CI runs it against a PR's base branch, or
+against the previous commit on a push. Two changes are allowed without a new
+`SOURCE`:
+
+- **publishing:** moving `drafts/<slug>/` to `pieces/<slug>/`;
+- **dates:** setting `date` or `updated` in the frontmatter.
+
+Removing `SOURCE` from a piece that had one fails too. Fix typos upstream.
+
 ## Enforced rules (`scripts/validate`)
 
 1. Required fields present and non-empty: `title`, `date`, `kind`, `canonical`.
@@ -81,6 +151,15 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
    `did`, each listed once; a role, if given, is non-empty and ≤100 characters.
 9. `readAloud`, if present, is a relative `.txt` path inside the piece's directory, and
    the file exists.
+10. The piece's directory holds only the files listed in [Files in a piece](#files-in-a-piece),
+    of the listed types, with no symbolic links; relative links and images resolve inside it.
+    More than 5 MB in total is a warning.
+11. Figures are complete: a readable marker with a unique id, a still image in `assets/` with
+    alt text, a caption, and the component's file in `figures/`. Only `kind: report` has them.
+12. `SOURCE`, if present, is one line: `<repository> <40-character commit>`.
+13. With `--against <ref>`: an exported piece that changed since `<ref>` has a new `SOURCE`
+    (see [SOURCE](#source)).
+14. An exported draft's slug is not also in `pieces/`.
 
 ## Repo-level metadata (not per-piece)
 

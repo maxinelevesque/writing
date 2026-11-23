@@ -24,6 +24,8 @@ jobs:
     environment: at-publish
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # for the SOURCE check against the previous main
 
       - uses: actions/setup-node@v4
         with:
@@ -33,7 +35,14 @@ jobs:
 
       # The gate: never publish content that fails the schema.
       - name: Validate
-        run: ./scripts/validate
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            ./scripts/validate --against "$BEFORE"
+          else
+            ./scripts/validate
+          fi
 
       # Upsert site.standard.* records; delete records for removed pieces.
       - name: Publish atproto records
