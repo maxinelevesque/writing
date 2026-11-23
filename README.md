@@ -6,7 +6,8 @@ from this repo, never edited in place there.
 
 - `pieces/<slug>/index.md` — **published.** The canonical text. A change here goes live.
 - `drafts/` — **staged.** Free-form working copies. Nothing here is consumed or published.
-  Promotion to `pieces/` is the act of publishing.
+  Promotion to `pieces/` is the act of publishing. (An exported draft, one with a `SOURCE`
+  file, is validated like a piece; see [`SCHEMA.md`](SCHEMA.md#source).)
 
 Content is plain Markdown with minimal *semantic* frontmatter. Presentation choices
 (theme, background system, read time) live downstream in the site, keyed by slug.
@@ -29,6 +30,10 @@ protection to remember.
 
   On push to `main`, CI validates, publishes the atproto record, and rebuilds the site.
 
+A piece exported from another repository (it has a `SOURCE` file) is published the
+same way, by a PR that moves `drafts/<slug>/` to `pieces/<slug>/` and sets its `date`.
+Any other change to it comes from upstream, by re-export.
+
 Removing a piece is the reverse: `git mv pieces/<slug>/index.md drafts/<slug>.md`
 (or delete it). Its atproto record is deleted on the next publish.
 
@@ -46,7 +51,7 @@ git push                                                     # → CI: validate 
 
 On push to `main` touching `pieces/**`, `.github/workflows/publish.yml`:
 
-1. **validate** — `scripts/validate` against the schema (also runs standalone on PRs via `validate.yml`).
+1. **validate** — `scripts/validate` against the schema, plus the `SOURCE` check against the previous `main` (also runs standalone on PRs via `validate.yml`, with the validator's own tests: `npm test`).
 2. **atproto** — `scripts/publish-atproto` upserts one `site.standard.publication`
    (from [`publication.json`](publication.json)) and one `site.standard.document`
    per piece (title, path, dates, description, `tags`, `contributors`, and the

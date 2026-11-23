@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - 'pieces/**'
+      - 'drafts/**'
       - 'scripts/**'
       - '.github/workflows/validate.yml'
   pull_request:
     paths:
       - 'pieces/**'
+      - 'drafts/**'
       - 'scripts/**'
       - '.github/workflows/validate.yml'
 
@@ -17,8 +19,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The SOURCE check compares against the base of the change.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate frontmatter schema
-        run: ./scripts/validate
+      - name: Test the validator
+        run: npm test
+      - name: Validate pieces and exported drafts
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # A PR is checked against its base branch; a push against the commit
+          # it replaced (none for a new branch).
+          if [ -n "$BASE_REF" ]; then
+            ./scripts/validate --against "origin/$BASE_REF"
+          elif [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            ./scripts/validate --against "$BEFORE"
+          else
+            ./scripts/validate
+          fi

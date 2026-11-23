@@ -1,17 +1,30 @@
 #!/usr/bin/env node
-// The only gate on publishing. Validates every pieces/<slug>/index.md against
-// the frontmatter schema documented in SCHEMA.md. Exits non-zero on any
+// The only gate on publishing. Validates every pieces/<slug>/ against the
+// schema documented in SCHEMA.md: frontmatter, figures, the files a piece may
+// hold, and its SOURCE. Drafts are free-form, except an exported draft (one
+// with a SOURCE file), which is validated like a piece. Exits non-zero on any
 // violation so CI (.github/workflows/validate.yml) fails the build.
+//
+//   scripts/validate                   check the working tree
+//   scripts/validate --against <ref>   also check that no exported piece was
+//                                      edited here without updating its SOURCE
 //
 // Dependency-free: standard Node only.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, dirname, normalize, isAbsolute, sep } from 'node:path';
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, dirname, normalize, isAbsolute, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse, parseContributor } from './lib/frontmatter.mjs';
+import { figures, relativeTargets } from './lib/figures.mjs';
+import { SOURCE_RE, checkSourceAgainst } from './lib/source.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PIECES = join(ROOT, 'pieces');
+const DRAFTS = join(ROOT, 'drafts');
+
+const argAt = process.argv.indexOf('--against');
+const AGAINST = argAt === -1 ? null : process.argv[argAt + 1];
+if (argAt !== -1 && !AGAINST) { console.error('--against needs a git ref'); process.exit(2); }
 
 const KINDS = new Set(['essay', 'fiction', 'note', 'dialogue', 'report']);
 // kind -> canonical URL segment
@@ -30,13 +43,23 @@ const TAG_MAX = 128; // site.standard.document tags: maxGraphemes 128
 const ROLE_MAX = 100; // site.standard.document contributor role: maxGraphemes 100
 const READ_ALOUD_EXT = /\.txt$/;
 const graphemes = (s) => [...new Intl.Segmenter().segment(s)].length;
+// What a piece's directory may hold (SCHEMA.md, "Files in a piece").
+const IMAGE_EXT = new Set(['.svg', '.png', '.jpg', '.jpeg', '.webp', '.gif']);
+const FIGURE_EXT = new Set(['.js', '.mjs', '.css', '.json', '.md']);
+const SIZE_WARN = 5 * 1024 * 1024;
 
 // persona registry: contributors reference these keys (each maps to a DID).
 let PERSONAS = {};
 try { PERSONAS = JSON.parse(readFileSync(join(ROOT, 'personas.json'), 'utf8')); } catch {}
 
 let errors = 0;
+let warnings = 0;
 const fail = (slug, msg) => { errors++; console.error(`  ✗ ${slug}: ${msg}`); };
+const warn = (slug, msg) => { warnings++; console.warn(`  ! ${slug}: ${msg}`); };
+const contained = (rel) => {
+  const norm = normalize(rel);
+  return rel && !isAbsolute(rel) && !norm.split(sep).includes('..') ? norm : null;
+};
 
 function isRealDate(s) {
   if (!DATE_RE.test(s)) return false;
@@ -45,98 +68,183 @@ function isRealDate(s) {
   return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
 }
 
-let slugs;
-try {
-  slugs = readdirSync(PIECES).filter((n) => {
-    try { return statSync(join(PIECES, n)).isDirectory(); } catch { return false; }
-  }).sort();
-} catch {
+const dirsIn = (root) => {
+  try {
+    return readdirSync(root).filter((n) => {
+      try { return statSync(join(root, n)).isDirectory(); } catch { return false; }
+    }).sort();
+  } catch { return null; }
+};
+const pieceSlugs = dirsIn(PIECES);
+if (!pieceSlugs) {
   console.error('no pieces/ directory found');
   process.exit(1);
 }
+// Each unit: a published piece, or an exported draft (it has a SOURCE file).
+const units = pieceSlugs.map((slug) => ({ slug, label: slug, dir: join(PIECES, slug), rel: `pieces/${slug}`, draft: false }));
+for (const slug of dirsIn(DRAFTS) ?? []) {
+  if (!existsSync(join(DRAFTS, slug, 'SOURCE'))) continue;
+  if (pieceSlugs.includes(slug)) fail(`drafts/${slug}`, `${slug} is in both pieces/ and drafts/`);
+  units.push({ slug, label: `drafts/${slug}`, dir: join(DRAFTS, slug), rel: `drafts/${slug}`, draft: true });
+}
 
-for (const slug of slugs) {
-  const file = join(PIECES, slug, 'index.md');
+// Every file in a piece's directory: where it is, what type, how large.
+function checkFiles(unit, d) {
+  const { label, dir } = unit;
+  const readAloud = typeof d.readAloud === 'string' ? contained(d.readAloud) : null;
+  const top = new Set(['index.md', 'SOURCE', 'assets', 'figures']);
+  if (readAloud) top.add(readAloud.split(sep)[0]);
+  let total = 0;
+  const walk = (abs, rel) => {
+    for (const name of readdirSync(abs)) {
+      const a = join(abs, name);
+      const r = rel ? join(rel, name) : name;
+      const st = lstatSync(a);
+      if (st.isSymbolicLink()) { fail(label, `${r} is a symbolic link; pieces hold only ordinary files`); continue; }
+      if (!rel && !top.has(name)) { fail(label, `unexpected ${st.isDirectory() ? 'directory' : 'file'} ${r} (a piece holds index.md, SOURCE, assets/, figures/ and its readAloud file)`); continue; }
+      if (st.isDirectory()) { walk(a, r); continue; }
+      total += st.size;
+      const area = r.split(sep)[0];
+      const ext = extname(name).toLowerCase();
+      if (r === readAloud) continue;
+      if (area === 'assets' && !IMAGE_EXT.has(ext)) fail(label, `${r}: assets/ holds images (${[...IMAGE_EXT].join(' ')})`);
+      if (area === 'figures' && !FIGURE_EXT.has(ext)) fail(label, `${r}: figures/ holds code, styles and data (${[...FIGURE_EXT].join(' ')})`);
+    }
+  };
+  walk(dir, '');
+  if (total > SIZE_WARN) warn(label, `${(total / 1024 / 1024).toFixed(1)} MB in total; consider smaller stills`);
+}
+
+// Figures and relative links in the body.
+function checkBody(unit, d, body) {
+  const { label, dir } = unit;
+  const isFile = (rel) => { try { return statSync(join(dir, rel)).isFile(); } catch { return false; } };
+  const { found, problems } = figures(body);
+  for (const p of problems) fail(label, p);
+  if (found.length && d.kind !== 'report') fail(label, `figures are only rendered for kind: report (got kind: ${d.kind})`);
+  const ids = new Set();
+  for (const f of found) {
+    if (ids.has(f.id)) fail(label, `figure id #${f.id} is used twice`);
+    ids.add(f.id);
+    if (!['js', 'mjs'].some((ext) => isFile(join('figures', `${f.component}.${ext}`)))) {
+      fail(label, `figure #${f.id}: no figures/${f.component}.js or .mjs for component "${f.component}"`);
+    }
+  }
+  const readAloud = typeof d.readAloud === 'string' ? contained(d.readAloud) : null;
+  for (const { target, image, line } of relativeTargets(body)) {
+    const rel = contained(decodeURI(target));
+    const where = `line ${line}: ${target}`;
+    if (!rel) { fail(label, `${where}: relative links must stay inside the piece's directory`); continue; }
+    if (!isFile(rel)) { fail(label, `${where}: no such file in ${label}/`); continue; }
+    if (image) {
+      if (!rel.startsWith(`assets${sep}`) || !IMAGE_EXT.has(extname(rel).toLowerCase())) {
+        fail(label, `${where}: images must be in assets/ (${[...IMAGE_EXT].join(' ')})`);
+      }
+    } else if (!rel.startsWith(`assets${sep}`) && rel !== readAloud) {
+      fail(label, `${where}: links may point into assets/ or at the readAloud file`);
+    }
+  }
+}
+
+for (const unit of units) {
+  const { slug, label: unitLabel } = unit;
+  const file = join(unit.dir, 'index.md');
   let raw;
   try { raw = readFileSync(file, 'utf8'); }
-  catch { fail(slug, `missing ${slug}/index.md`); continue; }
+  catch { fail(unitLabel, `missing ${unit.rel}/index.md`); continue; }
 
   let fm;
   try { fm = parse(raw); }
-  catch (e) { fail(slug, e.message); continue; }
-  if (!fm.data) { fail(slug, 'no frontmatter block'); continue; }
+  catch (e) { fail(unitLabel, e.message); continue; }
+  if (!fm.data) { fail(unitLabel, 'no frontmatter block'); continue; }
   const d = fm.data;
 
   for (const k of REQUIRED) {
-    if (!(k in d) || d[k] === '') fail(slug, `missing required field: ${k}`);
+    // A draft's date is set when it is published.
+    if (unit.draft && k === 'date') continue;
+    if (!(k in d) || d[k] === '') fail(unitLabel, `missing required field: ${k}`);
   }
   for (const k of Object.keys(d)) {
-    if (!ALLOWED.has(k)) fail(slug, `unknown field: ${k}`);
+    if (!ALLOWED.has(k)) fail(unitLabel, `unknown field: ${k}`);
   }
 
-  if (d.date && !isRealDate(d.date)) fail(slug, `date must be a real YYYY-MM-DD (got "${d.date}")`);
-  if (d.updated && !isRealDate(d.updated)) fail(slug, `updated must be a real YYYY-MM-DD (got "${d.updated}")`);
+  if (d.date && !isRealDate(d.date)) fail(unitLabel, `date must be a real YYYY-MM-DD (got "${d.date}")`);
+  if (d.updated && !isRealDate(d.updated)) fail(unitLabel, `updated must be a real YYYY-MM-DD (got "${d.updated}")`);
 
-  if (d.kind && !KINDS.has(d.kind)) fail(slug, `kind must be one of ${[...KINDS].join(', ')} (got "${d.kind}")`);
+  if (d.kind && !KINDS.has(d.kind)) fail(unitLabel, `kind must be one of ${[...KINDS].join(', ')} (got "${d.kind}")`);
 
   // canonical must resolve to the site path implied by kind and equal the slug
   if (d.canonical && SEGMENT[d.kind]) {
     const seg = SEGMENT[d.kind];
     const want = `${SITE}/${seg}/${slug}`;
-    if (d.canonical !== want) fail(slug, `canonical must be ${want} (got "${d.canonical}")`);
+    if (d.canonical !== want) fail(unitLabel, `canonical must be ${want} (got "${d.canonical}")`);
   }
 
   // register consistency: dialogues carry a coauthor; reports may; the rest do not.
-  if (d.kind === 'dialogue' && !d.coauthor) fail(slug, 'kind: dialogue requires a coauthor');
-  if (d.kind && !COAUTHORED.has(d.kind) && d.coauthor) fail(slug, `coauthor is only for kind: dialogue or report (got kind: ${d.kind})`);
-  if (d.coauthorNote && !d.coauthor) fail(slug, 'coauthorNote requires a coauthor');
+  if (d.kind === 'dialogue' && !d.coauthor) fail(unitLabel, 'kind: dialogue requires a coauthor');
+  if (d.kind && !COAUTHORED.has(d.kind) && d.coauthor) fail(unitLabel, `coauthor is only for kind: dialogue or report (got kind: ${d.kind})`);
+  if (d.coauthorNote && !d.coauthor) fail(unitLabel, 'coauthorNote requires a coauthor');
 
   // readAloud: an authored plain-text companion inside the piece's directory
   if ('readAloud' in d) {
     const rel = d.readAloud;
     const norm = typeof rel === 'string' ? normalize(rel) : '';
     if (!rel || isAbsolute(rel) || norm.startsWith('..') || norm.split(sep).includes('..')) {
-      fail(slug, `readAloud must be a relative path inside ${slug}/ (got "${rel}")`);
+      fail(unitLabel, `readAloud must be a relative path inside ${slug}/ (got "${rel}")`);
     } else if (!READ_ALOUD_EXT.test(rel)) {
-      fail(slug, `readAloud must be a .txt file (got "${rel}")`);
+      fail(unitLabel, `readAloud must be a .txt file (got "${rel}")`);
     } else {
       let ok = false;
-      try { ok = statSync(join(PIECES, slug, norm)).isFile(); } catch {}
-      if (!ok) fail(slug, `readAloud file not found: ${slug}/${rel}`);
+      try { ok = statSync(join(unit.dir, norm)).isFile(); } catch {}
+      if (!ok) fail(unitLabel, `readAloud file not found: ${unit.rel}/${rel}`);
     }
   }
 
   // tags: optional list of non-empty strings within the lexicon length bound
   if ('tags' in d) {
-    if (!Array.isArray(d.tags)) fail(slug, 'tags must be a list, e.g. [foo, bar]');
+    if (!Array.isArray(d.tags)) fail(unitLabel, 'tags must be a list, e.g. [foo, bar]');
     else for (const t of d.tags) {
-      if (typeof t !== 'string' || t === '') fail(slug, 'tags entries must be non-empty strings');
-      else if (t.length > TAG_MAX) fail(slug, `tag too long (>${TAG_MAX}): "${t}"`);
+      if (typeof t !== 'string' || t === '') fail(unitLabel, 'tags entries must be non-empty strings');
+      else if (t.length > TAG_MAX) fail(unitLabel, `tag too long (>${TAG_MAX}): "${t}"`);
     }
   }
 
   // contributors: optional list of persona keys that must exist in personas.json
   if ('contributors' in d) {
-    if (!Array.isArray(d.contributors)) fail(slug, 'contributors must be a list of persona keys');
+    if (!Array.isArray(d.contributors)) fail(unitLabel, 'contributors must be a list of persona keys');
     else {
       const seen = new Set();
       for (const entry of d.contributors) {
         const { key, role } = parseContributor(entry);
-        if (!PERSONAS[key]) fail(slug, `unknown contributor persona: "${key}" (add it to personas.json)`);
-        else if (!PERSONAS[key].did) fail(slug, `persona "${key}" has no did in personas.json`);
-        if (seen.has(key)) fail(slug, `contributor "${key}" listed twice`);
+        if (!PERSONAS[key]) fail(unitLabel, `unknown contributor persona: "${key}" (add it to personas.json)`);
+        else if (!PERSONAS[key].did) fail(unitLabel, `persona "${key}" has no did in personas.json`);
+        if (seen.has(key)) fail(unitLabel, `contributor "${key}" listed twice`);
         seen.add(key);
         if (role !== null) {
-          if (role === '') fail(slug, `contributor "${key}" has an empty role`);
-          else if (graphemes(role) > ROLE_MAX) fail(slug, `contributor "${key}" role too long (>${ROLE_MAX})`);
+          if (role === '') fail(unitLabel, `contributor "${key}" has an empty role`);
+          else if (graphemes(role) > ROLE_MAX) fail(unitLabel, `contributor "${key}" role too long (>${ROLE_MAX})`);
         }
       }
     }
   }
+
+  checkFiles(unit, d);
+  checkBody(unit, d, fm.body);
+
+  // SOURCE: the upstream commit an exported piece came from.
+  if (existsSync(join(unit.dir, 'SOURCE'))) {
+    const src = readFileSync(join(unit.dir, 'SOURCE'), 'utf8');
+    if (!SOURCE_RE.test(src)) fail(unitLabel, 'SOURCE must be one line: "<repository> <40-character commit>", e.g. "formal-computation 0123…"');
+  }
 }
 
+if (AGAINST) {
+  for (const { label, msg } of checkSourceAgainst(ROOT, AGAINST, units)) fail(label, msg);
+}
+
+const counted = `${pieceSlugs.length} piece(s)` + (units.length > pieceSlugs.length ? ` and ${units.length - pieceSlugs.length} exported draft(s)` : '');
 if (errors) {
-  console.error(`\nvalidate: ${errors} error(s) across ${slugs.length} piece(s)`);
+  console.error(`\nvalidate: ${errors} error(s) across ${counted}`);
   process.exit(1);
 }
-console.log(`validate: ${slugs.length} piece(s) OK`);
+console.log(`validate: ${counted} OK${warnings ? ` (${warnings} warning(s))` : ''}${AGAINST ? `; SOURCE checked against ${AGAINST}` : ''}`);

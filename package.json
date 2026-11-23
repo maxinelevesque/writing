@@ -9,6 +9,7 @@
   },
   "scripts": {
     "validate": "./scripts/validate",
+    "test": "node --test 'scripts/test/*.test.mjs'",
     "publish:atproto": "node scripts/publish-atproto"
   },
   "dependencies": {
