@@ -39,7 +39,7 @@ mkdir -p pieces/my-slug && $EDITOR pieces/my-slug/index.md   # write it (frontma
 ./scripts/validate                                           # must pass — the publish gate
 git add pieces/my-slug && git commit -m "Publish: my-slug"
 git push                                                     # → CI: validate → atproto → site rebuild
-# canonical is https://maxine.science/writing/my-slug (or /dialogues/my-slug for kind: dialogue)
+# canonical is https://maxine.science/writing/my-slug (/dialogues/my-slug for kind: dialogue, /research/my-slug for kind: report)
 ```
 
 ## Downstream pipeline

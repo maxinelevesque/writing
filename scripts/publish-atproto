@@ -20,7 +20,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from '
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { parse } from './lib/frontmatter.mjs';
+import { parse, parseContributor } from './lib/frontmatter.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PIECES = join(ROOT, 'pieces');
@@ -94,7 +94,7 @@ function buildDocRecord(slug, fm, publicationUri, personas) {
   const d = fm.data;
   // path + site are what consumers use to build the canonical URL (per the
   // site.standard lexicon); we do not emit a separate canonicalUrl.
-  const path = new URL(d.canonical).pathname;   // /writing/<slug> or /dialogues/<slug>
+  const path = new URL(d.canonical).pathname;   // /writing/<slug>, /dialogues/<slug> or /research/<slug>
   const rec = {
     $type: COL_DOC,
     title: d.title,
@@ -116,13 +116,15 @@ function buildDocRecord(slug, fm, publicationUri, personas) {
   const description = d.summary || d.subtitle;
   if (description) rec.description = description;
   if (Array.isArray(d.tags) && d.tags.length) rec.tags = d.tags;
-  // contributors: resolve persona keys -> {did, role?, displayName?}
+  // contributors: resolve persona keys -> {did, role?, displayName?}. A role
+  // given in the piece ("claude: Lean formalization") overrides the persona's.
   if (Array.isArray(d.contributors) && d.contributors.length) {
-    rec.contributors = d.contributors.map((key) => {
+    rec.contributors = d.contributors.map((entry) => {
+      const { key, role } = parseContributor(entry);
       const p = personas[key];
       if (!p || !p.did) throw new Error(`${slug}: unknown/incomplete contributor persona "${key}"`);
       const c = { did: p.did };
-      if (p.role) c.role = p.role;
+      if (role || p.role) c.role = role || p.role;
       if (p.displayName) c.displayName = p.displayName;
       return c;
     });

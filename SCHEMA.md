@@ -16,14 +16,15 @@ title:        string                      # required
 subtitle:     string?                     # optional
 date:         YYYY-MM-DD                   # required — first publication
 updated:      YYYY-MM-DD?                  # optional — last substantive revision
-kind:         essay | fiction | note | dialogue   # required
-coauthor:     string?                      # dialogues only ("Claude"); the cool-register signal
-coauthorNote: string?                      # dialogues only; one sentence rendered as a footnote on the coauthor byline
+kind:         essay | fiction | note | dialogue | report   # required
+coauthor:     string?                      # dialogues (required) and reports (optional); "Claude"
+coauthorNote: string?                      # with a coauthor; one sentence rendered as a footnote on the coauthor byline
 formerName:   string?                      # deadname / pen-name byline attribution on a piece
 summary:      string?                      # one paragraph; feeds atproto record + OG description
 canonical:    https://maxine.science/<seg>/<slug>   # required
 tags:         [string]?                     # topic tags; flow-sequence, e.g. [klein, psychoanalysis]
-contributors: [string]?                     # persona keys from personas.json (AI-authored credit → DID)
+contributors: [string]?                     # persona keys from personas.json, each optionally "key: role"
+readAloud:    path?                         # authored plain-text companion inside the piece's directory, e.g. read-aloud.txt
 ```
 
 Field order in files follows the block above. Values are double-quoted when they
@@ -38,9 +39,12 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
 - **kind** — the semantic category, and the only routing signal a consumer needs:
   - `essay`, `fiction`, `note` → the site's **writing** collection → `/writing/<slug>`
   - `dialogue` → the site's **dialogues** collection → `/dialogues/<slug>`
-- **coauthor** — set to `"Claude"` on dialogues. Required iff `kind: dialogue`; forbidden
-  otherwise. This is what the site reads as the "cool register" signal.
-- **coauthorNote** — optional, dialogues only. One or two sentences shown as a footnote
+  - `report` → the site's **research** collection → `/research/<slug>`. A research report:
+    a long-form technical piece, possibly with interactive figures, shown in its own
+    register.
+- **coauthor** — set to `"Claude"`. Required on `kind: dialogue` (the "cool register"
+  signal); optional on `kind: report`; forbidden on every other kind.
+- **coauthorNote** — optional, and only alongside `coauthor`. One or two sentences shown as a footnote
   hanging off the coauthor name in the byline and printed at the foot of the page: the
   division of labour, and, where a session chose a name for itself, that name. The
   byline itself always says `Claude`.
@@ -50,8 +54,16 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
 - **summary** — optional one-paragraph description used as the atproto document
   `description` and the OG description. When absent, consumers fall back to `subtitle`.
   Left unset at migration time (authorial text; not fabricated) — add per piece when wanted.
+- **contributors** — persona keys from `personas.json`, credited in the atproto record
+  with each persona's DID. An entry may name this piece's role for that persona, which
+  overrides the persona's default role: `contributors: ["claude: Lean formalization", seam]`.
+  Quote an entry that has a role. Roles are at most 100 characters (the lexicon's bound).
+- **readAloud** — an authored plain-text companion for reading aloud: written text, not an
+  automatically stripped transcript, with figures described in words. A relative `.txt`
+  path inside the piece's directory. The site links it; it is not sent to atproto (the
+  document lexicon has no field for it).
 - **canonical** — the piece's public URL, derived deterministically from `kind` + slug.
-  The validator requires it to equal `https://maxine.science/<writing|dialogues>/<slug>`
+  The validator requires it to equal `https://maxine.science/<writing|dialogues|research>/<slug>`
   where `<slug>` is the directory name. It exists so the semantic source, not the
   renderer, owns each piece's canonical identity.
 
@@ -60,11 +72,15 @@ contain punctuation; `date`, `updated`, `kind`, and `canonical` are written bare
 1. Required fields present and non-empty: `title`, `date`, `kind`, `canonical`.
 2. No fields outside the allow-list above (unknown keys fail).
 3. `date` / `updated` are real `YYYY-MM-DD` dates.
-4. `kind` is one of the four enum values.
+4. `kind` is one of the five enum values.
 5. `canonical` matches the URL implied by `kind` and equals the directory slug.
-6. `kind: dialogue` ⇔ `coauthor` is present.
+6. `kind: dialogue` requires `coauthor`; `coauthor` is allowed only on `dialogue` and
+   `report`; `coauthorNote` requires `coauthor`.
 7. `tags`, if present, is a list of non-empty strings (≤128 chars each).
-8. `contributors`, if present, are persona keys that exist in `personas.json` and have a `did`.
+8. `contributors`, if present, are persona keys that exist in `personas.json` and have a
+   `did`, each listed once; a role, if given, is non-empty and ≤100 characters.
+9. `readAloud`, if present, is a relative `.txt` path inside the piece's directory, and
+   the file exists.
 
 ## Repo-level metadata (not per-piece)
 
