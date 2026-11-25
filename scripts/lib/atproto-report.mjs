@@ -12,9 +12,8 @@
 // "[Figure 2 (interaction nets): Four views of running. Caption… Alt text.]".
 // Math becomes Unicode where it's simple (the brackets, arrows and letters of the report); a
 // formula with anything else stays as TeX, and is reported as a warning for the author.
-import { blocks, parseFigureMarker } from './figures.mjs';
+import { blocks, parseFigureMarker, IMAGE, LINK } from './figures.mjs';
 
-const IMAGE = /^!\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)$/;
 
 const SYMBOLS = { llbracket: '⟦', rrbracket: '⟧', to: '→', rightarrow: '→', leftarrow: '←', Rightarrow: '⇒',
   mapsto: '↦', vdash: '⊢', in: '∈', notin: '∉', subseteq: '⊆', cup: '∪', cap: '∩', times: '×', circ: '∘',
@@ -105,7 +104,7 @@ export function projectReport({ slug, body, canonical, hasFile = () => false }) 
 
   // The page switch is the site's; other relative links and images point at the site's files.
   md = md.replace(/^<!--\s*page-switch\s*-->\s*$/gm, '')
-    .replace(/(!?)\[([^\]]*)\]\(\s*([^)\s]+)((?:\s+"[^"]*")?)\s*\)/g, (all, bang, text, url, title) => {
+    .replace(LINK, (all, bang, text, url, title) => {
       if (!isRelative(url)) return all;
       return `${bang}[${text}](${bang ? still(url) : absolute(url)}${title})`;
     });
