@@ -21,6 +21,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { parse, parseContributor } from './lib/frontmatter.mjs';
+import { projectReport } from './lib/atproto-report.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PIECES = join(ROOT, 'pieces');
@@ -33,6 +34,8 @@ const COL_PUB = 'site.standard.publication';
 const COL_DOC = 'site.standard.document';
 
 const DRY_RUN = process.argv.includes('--dry-run');
+// --show <slug>: print the record a piece would get (content and textContent), and stop.
+const SHOW = process.argv.includes('--show') ? process.argv[process.argv.indexOf('--show') + 1] : null;
 
 // ---- helpers ---------------------------------------------------------------
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
@@ -112,6 +115,15 @@ function buildDocRecord(slug, fm, publicationUri, personas) {
     textContent: stripMarkdown(fm.body),
     publishedAt: new Date(`${d.date}T00:00:00.000Z`).toISOString(),
   };
+  // A research report's figures run only on the site: atproto readers get each figure's PNG still,
+  // its caption and a link to the live figure (lib/atproto-report.mjs). Other kinds are unchanged.
+  if (d.kind === 'report') {
+    const r = projectReport({ slug, body: fm.body, canonical: d.canonical,
+      hasFile: (rel) => existsSync(join(PIECES, slug, rel)) });
+    rec.content.text = r.markdown;
+    rec.textContent = r.textContent;
+    for (const w of r.warnings) console.warn(`  ${slug}: ${w}`);
+  }
   if (d.updated) rec.updatedAt = new Date(`${d.updated}T00:00:00.000Z`).toISOString();
   const description = d.summary || d.subtitle;
   if (description) rec.description = description;
@@ -144,6 +156,13 @@ async function main() {
   for (const slug of slugs) {
     const raw = readFileSync(join(PIECES, slug, 'index.md'), 'utf8');
     desired[slug] = { fm: parse(raw) };
+  }
+
+  if (SHOW) {
+    if (!desired[SHOW]) { console.error(`no piece ${SHOW} in pieces/`); process.exit(2); }
+    const rec = buildDocRecord(SHOW, desired[SHOW].fm, 'at://(publication)', personas);
+    console.log(`# content (${rec.content.$type})\n\n${rec.content.text}\n\n# textContent\n\n${rec.textContent}`);
+    return;
   }
 
   let agent = null;
