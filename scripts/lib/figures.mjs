@@ -11,7 +11,10 @@
 // that `layout` is the site's choice (its presentation.json), never the source's.
 
 const NAME = /^[a-z][a-z0-9-]*$/;
-const IMAGE = /^!\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)$/;
+// Link and image text may contain escaped brackets (\] and \[), as Markdown allows.
+const TEXT = String.raw`(?:\\.|[^\]\\])*`;
+export const IMAGE = new RegExp(String.raw`^!\[(${TEXT})\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)$`);
+export const LINK = new RegExp(String.raw`(!?)\[(${TEXT})\]\(\s*<?([^)\s>]+)>?((?:\s+"[^"]*")?)\s*\)`, 'g');
 
 // `<!-- figure … -->` → { id, component, attrs }; null for any other text;
 // throws on a figure comment it can't read.
@@ -92,8 +95,8 @@ export function figures(body) {
 export function relativeTargets(body) {
   const out = [];
   for (const b of blocks(body)) {
-    for (const m of b.text.matchAll(/(!?)\[[^\]]*\]\(\s*<?([^)\s>]+)>?/g)) {
-      const target = m[2];
+    for (const m of b.text.matchAll(LINK)) {
+      const target = m[3];
       if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('/') || target.startsWith('#')) continue;
       const line = b.line + b.text.slice(0, m.index).split('\n').length - 1;
       out.push({ target: target.replace(/[?#].*$/, '').replace(/^\.\//, ''), image: m[1] === '!', line });

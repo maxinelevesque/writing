@@ -191,6 +191,28 @@ on a later run). It also emits `canonicalUrl` (= the piece's `canonical`): the U
 is derivable from `site` + `path`, but standard.site readers and Bluesky match a
 posted URL against `canonicalUrl`, and working publishers include it.
 
+### The atproto copy of a report
+
+A report's figures run only on the site, and some readers (Standard Reader, docs.surf,
+pub-search) see only the record. So for `kind: report` the record's `content` and `textContent`
+are a projection of the body (`scripts/lib/atproto-report.mjs`):
+
+- **Figures:**
+  - the figure comment is removed;
+  - the still becomes its PNG at an absolute site URL (`https://maxine.science/files/<slug>/assets/fig-x.png`),
+    or the SVG if there's no PNG beside it, with a warning;
+  - the caption ends with `[Interactive version →](<canonical>?calc=<calc>#<id>)`, a link to the
+    live figure in the calculus its still shows.
+- **In `textContent`**, each figure reads `[Figure 2 (interaction nets): title. Caption. Alt text.]`.
+- **Links:** other relative links and images (`assets/`, the read-aloud file) become absolute site
+  URLs, and `<!-- page-switch -->` goes.
+- **Math:** simple formulas (brackets, arrows, relations, Greek letters, `\mathrm{}`) become
+  Unicode, both inline and on their own line. Any other formula stays as TeX and is reported as
+  a warning for the author. Code is left alone.
+
+Other kinds are unchanged. `node scripts/publish-atproto --show <slug>` prints what a piece's
+record would hold, without publishing anything.
+
 ## Dropped fields
 
 The seed carried two presentation-only fields that do **not** belong in this repo

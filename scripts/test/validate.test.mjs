@@ -70,6 +70,13 @@ test('a complete report with a figure passes', (t) => {
   passes(r.run());
 });
 
+test('alt text may contain escaped brackets', (t) => {
+  const r = repo(t);
+  r.piece('pieces/r', { index: report().replace('![Four of twelve cells are filled.]',
+    String.raw`![Cells \[1, 4\] are filled, and \] is a bracket.]`) });
+  passes(r.run());
+});
+
 test('an exported draft is validated, without a date; a free-form draft is not', (t) => {
   const r = repo(t);
   r.piece('pieces/r');
