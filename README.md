@@ -48,6 +48,22 @@ git push                                                     # → CI: validate 
 # canonical is https://maxine.science/writing/my-slug (/dialogues/my-slug for kind: dialogue, /research/my-slug for kind: report)
 ```
 
+## Review on the forge
+
+A piece's final review is a pull request on the private forge mirror of this repo
+(`maxine/writing` on git.ur.nonsense.ventures), with the piece already at `pieces/<slug>/`.
+GitHub `main` stays the official version; the forge's `main` only follows it.
+
+- Each push to a forge PR runs `.forgejo/workflows/preview.yml`. It validates, builds
+  maxine.science from the branch with every block carrying its source lines
+  (`REVIEW_SOURCE_MAP=1`), and sends the build to the review service on enkidu as a new round.
+- Comments made on the rendered page come back as review comments on the PR's source lines.
+- Approval publishes the piece to GitHub `main` as a single commit, "Publish: <title>",
+  and the normal pipeline below takes over.
+
+The design is in forge `maxine/review`, `SPEC.md`. GitHub ignores `.forgejo/`; on the forge,
+`.github/workflows/` never runs, so publishing happens only here on GitHub.
+
 ## Downstream pipeline
 
 On push to `main` touching `pieces/**`, `.github/workflows/publish.yml`:

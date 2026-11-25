@@ -1,0 +1,88 @@
+name: preview
+
+# Review previews (forge maxine/review, SPEC.md §2). Each push to a pull request on the
+# forge mirror of this repo builds maxine.science from the branch, with every block
+# carrying its source lines (REVIEW_SOURCE_MAP=1), and sends it to the review service on
+# enkidu as a new round. Runs on the forge only: GitHub ignores .forgejo/.
+#
+# With .forgejo/workflows/ present, Forgejo no longer runs .github/workflows/ here, so
+# publish.yml can never run on the forge. Publishing stays on GitHub.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: light
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate (the same gate as publishing)
+        run: npm ci --no-audit --no-fund && ./scripts/validate
+
+      - name: Build the site from this branch, with source lines
+        run: |
+          site="$RUNNER_TEMP/site"
+          git clone --depth 1 https://github.com/maxinelevesque/maxinelevesque.github.io.git "$site"
+          grep -q REVIEW_SOURCE_MAP "$site/astro.config.mjs" \
+            || { echo "The site's main can't build review previews yet (no REVIEW_SOURCE_MAP)."; exit 1; }
+          cd "$site"
+          npm ci --no-audit --no-fund
+          # Figure code from this branch, not a pinned commit: previews show what's under review.
+          REVIEW_SOURCE_MAP=1 WRITING_SRC="$GITHUB_WORKSPACE" FIGURES_FROM_SOURCE=1 npm run build
+
+      - name: Package the round
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: ${{ github.base_ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          out="$RUNNER_TEMP/round"; mkdir -p "$out"
+          base="$(git merge-base "origin/$BASE_REF" "$HEAD_SHA")"
+          git diff --name-only "$base" "$HEAD_SHA" -- pieces/ | cut -d/ -f2 | sort -u > "$out/slugs"
+          [ -s "$out/slugs" ] || echo "This PR changes no piece; the round has the whole site anyway."
+          site_sha="$(git -C "$RUNNER_TEMP/site" rev-parse HEAD)"
+          node -e '
+            const fs = require("fs");
+            const [out, pr, head, base, site, title] = process.argv.slice(1);
+            const slugs = fs.readFileSync(out + "/slugs", "utf8").split("\n").filter(Boolean);
+            fs.writeFileSync(out + "/manifest.json", JSON.stringify({
+              repo: "maxine/writing", pr: Number(pr), head, base, site, title, slugs,
+              built: new Date().toISOString() }, null, 2) + "\n");
+          ' "$out" "$PR" "$HEAD_SHA" "$base" "$site_sha" "$TITLE"
+          rm "$out/slugs"
+          tar -czf "$out/site.tar.gz" -C "$RUNNER_TEMP/site/dist" .
+          cat "$out/manifest.json"; ls -lh "$out/site.tar.gz"
+
+      - name: Send it to the review service
+        env:
+          REVIEW_UPLOAD_SECRET: ${{ secrets.REVIEW_UPLOAD_SECRET }}
+        run: |
+          if [ -z "$REVIEW_UPLOAD_SECRET" ]; then
+            echo "No REVIEW_UPLOAD_SECRET yet: the round is kept as this run's artifact only."; exit 0
+          fi
+          out="$RUNNER_TEMP/round"
+          # The secret reaches curl as a header file, never on its command line.
+          curl --fail-with-body -sS --max-time 180 \
+            -H @<(printf 'Authorization: Bearer %s\n' "$REVIEW_UPLOAD_SECRET") \
+            -F "manifest=@$out/manifest.json;type=application/json" \
+            -F "site=@$out/site.tar.gz;type=application/gzip" \
+            https://review.enkidu.nonsense.ventures:7341/api/builds
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: preview-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/round/
+          retention-days: 14
