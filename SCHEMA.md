@@ -118,8 +118,8 @@ blocks:
 
 A marker inside fenced code is an example, not a figure.
 
-The only other marker is `<!-- page-switch -->`, at most once in a report, where the text
-introduces the page switch. A report also needs an abstract. Both are described in
+The other markers are `<!-- cards -->` (below) and `<!-- page-switch -->`, at most once in a
+report, where the text introduces the page switch. A report also needs an abstract. Both are described in
 [`STYLE.md`](STYLE.md), with the house style for citations, displays and proof links.
 
 ## Boxes
@@ -141,6 +141,22 @@ Two kinds of quotation in a report are boxes on the site:
   suits its use. `[!ESTABLISHED]` is its older name and still works.
 
 GitHub shows both as ordinary quotations, and the atproto copy opens them (below).
+
+## Cards
+
+A report can set related ideas as cards: `<!-- cards -->` before a bulleted list, one card per
+item, each starting with its picture and its bold heading.
+
+```md
+<!-- cards -->
+
+- ![Alt text for the picture.](assets/card-cost.svg) **Observation: a probe returns a cost as well as an answer.** *Complexity theory; interaction nets.* Programs with the same answers come apart…
+- ![…](assets/card-code.svg) **Observation: a probe may read code.** …
+```
+
+On the site the cards form a grid. GitHub, the atproto copy and the site without JavaScript show
+a list with small pictures. Cards take no figure number. Give each picture a PNG beside it for
+the atproto copy, as for figure stills.
 
 ## SOURCE
 
@@ -185,7 +201,8 @@ Removing `SOURCE` from a piece that had one fails too. Fix typos upstream.
     (see [SOURCE](#source)).
 14. An exported draft's slug is not also in `pieces/`.
 15. A report has an abstract (`> **Abstract.** …`) and at most one `<!-- page-switch -->`;
-    other kinds have no page switch. Bare URLs or DOIs in a report's text, and proof links
+    other kinds have no page switch or cards. `<!-- cards -->` is followed by a bulleted list
+    whose items each start with a picture with alt text and a bold heading. Bare URLs or DOIs in a report's text, and proof links
     labelled "lean", are warnings (see `STYLE.md`).
 
 ## Repo-level metadata (not per-piece)
@@ -225,9 +242,11 @@ are a projection of the body (`scripts/lib/atproto-report.mjs`):
     live figure in the calculus its still shows.
 - **Boxes** stay quotations, opened, with their lead in bold: `> **Theorem. The gap**`,
   `> **By level of support**`.
+- **Cards** stay a list: the marker goes, and each picture becomes its PNG at an absolute site
+  URL, like a figure's still.
 - **In `textContent`**, each figure reads `[Figure 2 (interaction nets): title. Caption. Alt text.]`.
 - **Links:** other relative links and images (`assets/`, the read-aloud file) become absolute site
-  URLs, and `<!-- page-switch -->` goes.
+  URLs, and `<!-- page-switch -->` and `<!-- cards -->` go.
 - **Math** becomes text, inline and on its own line. Code is left alone.
   - Symbols, Greek, `\mathrm{}`, `\mathbb{}`, function names (`\log`, `\max`) and accents on
     one letter (`\bar\kappa`) become Unicode, and so do numeric fractions (`\tfrac78` → ⅞).

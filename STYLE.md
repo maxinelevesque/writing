@@ -72,6 +72,13 @@ See [`SCHEMA.md`](SCHEMA.md#figures) for the three blocks: marker, still and cap
 captions carry the figure's actual content, because text-only readers and the read-aloud
 companion depend on them. Each caption names the calculus its still shows.
 
+## Cards
+
+For a set of related ideas, each with a small picture, use cards
+([`SCHEMA.md`](SCHEMA.md#cards)) rather than a figure followed by paragraphs. The bold heading is
+the card's title, so the picture needs none. Say what the pictures' marks mean in the sentence
+that introduces the cards.
+
 ## Tables
 
 Plain Markdown tables. Leave widths to the site: a table wider than the text column takes room

@@ -105,8 +105,8 @@ export function relativeTargets(body) {
   return out;
 }
 
-// Report conventions beyond figures (STYLE.md): the page-switch marker, the
-// abstract, and links. Returns { errors, warnings } as messages.
+// Report conventions beyond figures (STYLE.md): the page-switch and cards
+// markers, the abstract, and links. Returns { errors, warnings } as messages.
 export function reportChecks(body, kind) {
   const errors = [];
   const warnings = [];
@@ -116,10 +116,12 @@ export function reportChecks(body, kind) {
   if (switches.length && kind !== 'report') errors.push('<!-- page-switch --> is only rendered for kind: report');
   for (const b of bs) {
     const t = b.text.trim();
-    if (/^<!--/.test(t) && !/^<!--\s*(figure\b|page-switch\s*-->)/.test(t) && /^<!--\s*[a-z-]+\s*(#|[a-z-]+=|-->)/.test(t)) {
-      warnings.push(`line ${b.line}: unknown marker ${t.split(/\s+/).slice(0, 2).join(' ')}; only "figure" and "page-switch" mean anything to the site`);
+    if (/^<!--/.test(t) && !/^<!--\s*(figure\b|(page-switch|cards)\s*-->)/.test(t) && /^<!--\s*[a-z-]+\s*(#|[a-z-]+=|-->)/.test(t)) {
+      warnings.push(`line ${b.line}: unknown marker ${t.split(/\s+/).slice(0, 2).join(' ')}; only "figure", "page-switch" and "cards" mean anything to the site`);
     }
   }
+  errors.push(...cardProblems(bs));
+  if (kind !== 'report' && bs.some((b) => /^<!--\s*cards\s*-->$/.test(b.text.trim()))) errors.push('<!-- cards --> is only rendered for kind: report');
   if (kind !== 'report') return { errors, warnings };
   if (!bs.some((b) => /^>\s*\*\*Abstract[.:]?\*\*/i.test(b.text.trim()))) {
     errors.push('a research report needs an abstract: a blockquote starting "> **Abstract.**"');
@@ -134,4 +136,27 @@ export function reportChecks(body, kind) {
     }
   }
   return { errors, warnings };
+}
+
+// Cards (SCHEMA.md "Cards"): `<!-- cards -->` before a bulleted list whose items
+// each start with a picture with alt text, then a bold heading. A loose list
+// (blank lines between items) spans several blocks.
+const BULLET = /^[-*+] /;
+const CARD = new RegExp(String.raw`^[-*+] !\[(${TEXT})\]\([^)\s]+(?:\s+"[^"]*")?\)\s*\*\*\S`);
+function cardProblems(bs) {
+  const problems = [];
+  bs.forEach((b, i) => {
+    if (!/^<!--\s*cards\s*-->$/.test(b.text.trim())) return;
+    const items = [];
+    for (let j = i + 1; j < bs.length && (BULLET.test(bs[j].text) || (j > i + 1 && /^\s{2,}\S/.test(bs[j].text))); j++) {
+      bs[j].text.split('\n').forEach((line, k) => { if (BULLET.test(line)) items.push({ line, at: bs[j].line + k }); });
+    }
+    if (!items.length) { problems.push(`line ${b.line}: <!-- cards --> must be followed by a bulleted list, one card per item`); return; }
+    for (const { line, at } of items) {
+      const m = CARD.exec(line);
+      if (!m) problems.push(`line ${at}: a card starts with its picture, ![alt](assets/…), then its bold heading, **…**`);
+      else if (!m[1].trim()) problems.push(`line ${at}: a card's picture needs alt text`);
+    }
+  });
+  return problems;
 }

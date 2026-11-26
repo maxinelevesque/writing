@@ -74,3 +74,11 @@ test('boxes stay quotations, opened, with their lead in bold', () => {
   assert.doesNotMatch(r.textContent, /\[!|\*\*/);
   assert.match(r.textContent, /^Theorem\. The gap\. No price fits\. By level of support\./);
 });
+
+test('cards stay a list with their pictures; the marker goes', () => {
+  const body = 'Eight notions.\n\n<!-- cards -->\n\n- ![A run of one step.](assets/card-cost.svg) **Observation: a cost.** *Complexity.* Text.\n';
+  const r = projectReport({ slug: 'x', body, canonical: 'https://maxine.science/research/x', hasFile: (rel) => rel === 'assets/card-cost.png' });
+  assert.doesNotMatch(r.markdown, /<!--/);
+  assert.match(r.markdown, /^- !\[A run of one step\.\]\(https:\/\/maxine\.science\/files\/x\/assets\/card-cost\.png\) \*\*Observation: a cost\.\*\*/m);
+  assert.match(r.textContent, /Observation: a cost\. Complexity\. Text\./);
+});
