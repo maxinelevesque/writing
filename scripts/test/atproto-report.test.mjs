@@ -48,3 +48,14 @@ test('simple math becomes Unicode; the rest stays TeX and is reported; code is l
   assert.equal(texToUnicode('\\mathrm{Hom}(t, -) \\to \\Gamma'), 'Hom(t, -) → Γ');
   assert.equal(texToUnicode('x^2'), null);
 });
+
+test('boxes stay quotations, opened, with their lead in bold', () => {
+  const body = '> [!THEOREM] The gap\n>\n> No price fits.\n\n> [!DETAILS] By level of support\n>\n> | Claim | Lean |\n> |---|---|\n> | a | b |\n\n> [!ESTABLISHED] What is established\n>\n> Older name.\n';
+  const r = projectReport({ slug: 'x', body, canonical: 'https://maxine.science/research/x' });
+  assert.doesNotMatch(r.markdown, /\[!/);
+  assert.match(r.markdown, /^> \*\*Theorem\. The gap\*\*$/m);
+  assert.match(r.markdown, /^> \*\*By level of support\*\*\n>\n> \| Claim \| Lean \|$/m);
+  assert.match(r.markdown, /^> \*\*What is established\*\*$/m);
+  assert.doesNotMatch(r.textContent, /\[!|\*\*/);
+  assert.match(r.textContent, /^Theorem\. The gap\. No price fits\. By level of support\./);
+});
