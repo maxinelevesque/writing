@@ -19,5 +19,12 @@
     "displayName": "Bento",
     "role": "author",
     "publicKeyMultibase": "zQ3shcH1RwGwnRzacf8ETCBYoQSuYGhRFUHBTt11PcqnaawDG"
+  },
+  "codex": {
+    "did": "did:web:maxine.science:personas:codex",
+    "handle": "codex.agents.maxine.science",
+    "displayName": "Codex",
+    "role": "independent review",
+    "publicKeyMultibase": "zQ3shtuB7xd1XbPnTwoFhXv4qe15uszqcTv9xNtx2KD3zWm2U"
   }
 }
