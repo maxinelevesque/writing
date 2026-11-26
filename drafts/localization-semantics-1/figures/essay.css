@@ -1,0 +1,261 @@
+/* The figures of "Localization Semantics I": the stylesheet of post/atoms-and-probes.html for its
+   figures, scoped under .lsfig (the class every host gets on mount), for the site's dark research page.
+   Text, muted text, accent, rules and background come from the page's --essay-* properties. The essay's
+   semantic hues are properties of .lsfig, tuned for a dark page:
+   ochre = descriptions (atoms and the text they make), green = steps and runs,
+   blue = observation (probes, their readings, evidence), ink = what is kept (the line and its points),
+   red = a leak or a clash.
+   Drawings are at 1:1 (the svg's width and height are its view box) and shrink only below that width, so
+   the labels keep the sizes set here: 12.5px for terms (7.5px a character of the mono font, against the
+   7.6 the boxes allow) and 13px for the other labels. Widths are the host's, through container queries. */
+.lsfig {
+  --ls-ink: var(--essay-text, #e2dccb);
+  --ls-paper: var(--essay-bg, #17140d);
+  --ls-muted: var(--essay-muted, #8a7f66);
+  --ls-rule: var(--essay-rule, #30291a);
+  --ls-wash: #2c2619;
+  --ls-atom: var(--essay-accent, #d0a85c);
+  --ls-atom-wash: #3b2f14;
+  --ls-probe: #79bedb;
+  --ls-probe-wash: #13303b;
+  --ls-run: #82cf9e;
+  --ls-run-wash: #18351f;
+  --ls-alarm: #ec8279;
+  --ls-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  container: lsfig / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--ls-ink);
+  font-variant-numeric: lining-nums;
+}
+.lsfig *, .lsfig *::before, .lsfig *::after { box-sizing: border-box; }
+.lsfig [hidden] { display: none !important; }
+.lsfig :focus-visible { outline: 2px solid var(--ls-atom); outline-offset: 3px; }
+/* the page sets paragraphs as body text; inside a figure they are readouts */
+.lsfig.lsfig p { margin: 0; text-indent: 0; font-size: 1rem; line-height: 1.5; hyphens: manual; }
+.lsfig code, .lsfig .mono { font-family: var(--ls-mono); font-size: 0.86em; font-feature-settings: normal; }
+.lsfig .atom { color: var(--ls-atom); }
+.lsfig .probe { color: var(--ls-probe); }
+.lsfig .run { color: var(--ls-run); }
+
+/* words that hold in some calculi only, from the host's data-calc */
+.lsfig [data-only] { display: none; }
+.lsfig[data-calc='ski'] [data-only~='ski'],
+.lsfig[data-calc='tree'] [data-only~='tree'],
+.lsfig[data-calc='net'] [data-only~='net'] { display: inline; }
+
+/* controls: the page's font */
+.lsfig .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; font-size: 0.95rem; }
+.lsfig .tab {
+  font: inherit; font-weight: 500; color: var(--ls-muted); background: none; border: 0;
+  border-bottom: 2px solid transparent; padding: 6px 1px; cursor: pointer;
+}
+.lsfig .tab:hover { color: var(--ls-ink); }
+.lsfig .tab[aria-pressed='true'] { color: var(--ls-ink); border-bottom-color: var(--ls-ink); }
+.lsfig .btn {
+  font: inherit; font-weight: 500; color: var(--ls-ink); background: none;
+  border: 1px solid var(--ls-ink); border-radius: 3px; padding: 4px 14px; cursor: pointer; min-width: 4.6em;
+}
+.lsfig .btn.go { background: var(--ls-run); border-color: var(--ls-run); color: var(--ls-paper); }
+.lsfig .btn:disabled, .lsfig .tab:disabled { opacity: 0.4; cursor: default; }
+.lsfig .tab[data-m='syntax'][aria-pressed='true'] { color: var(--ls-atom); border-bottom-color: var(--ls-atom); }
+.lsfig .tab[data-m='run'][aria-pressed='true'] { color: var(--ls-run); border-bottom-color: var(--ls-run); }
+.lsfig .tab[data-m='test'][aria-pressed='true'] { color: var(--ls-probe); border-bottom-color: var(--ls-probe); }
+.lsfig .check { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.lsfig .check input { width: 17px; height: 17px; accent-color: var(--ls-ink); margin: 0; flex: none; }
+.lsfig input[type='range'] { accent-color: var(--ls-ink); width: min(220px, 50cqw); }
+.lsfig select {
+  font: inherit; font-size: 0.95rem; color: var(--ls-ink); background: var(--ls-paper); color-scheme: dark;
+  border: 0; border-bottom: 1px solid var(--ls-ink); padding: 4px 2px; max-width: 100%;
+}
+.lsfig select.mono { font-family: var(--ls-mono); font-size: 0.82rem; }
+.lsfig p.readout { max-width: 34.5rem; min-height: 3em; }
+.lsfig p.readout.live-note { min-height: 0; color: var(--ls-muted); font-size: 0.95rem; }
+.lsfig .now { font-family: var(--ls-mono); font-size: 1.1rem; min-height: 1.9em; overflow-x: auto; white-space: nowrap; color: var(--ls-atom); }
+.lsfig .now mark, .lsfig .runline mark { background: var(--ls-atom-wash); color: inherit; border-bottom: 2px solid var(--ls-atom); padding: 1px 3px; }
+.lsfig p.verdict { font-weight: 600; font-size: 1rem; }
+.lsfig p.verdict.bad { color: var(--ls-alarm); }
+.lsfig .panel-title { font-weight: 600; font-size: 1rem; line-height: 1.3; }
+
+/* drawings at 1:1, shrinking only below their own width */
+.lsfig svg { display: block; max-width: none; height: auto; color: var(--ls-ink); }
+/* Drawings never scale: SVG text keeps the page's CSS size (Maxine, 2026-11-23). A host
+   narrower than a drawing's narrowest layout scrolls sideways instead. */
+.lsfig { overflow-x: auto; }
+.lsfig .stage svg { margin: 0 auto; }
+.lsfig svg.lsfig-ruler { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* svg vocabulary */
+.lsfig svg text { font-family: var(--ls-mono); font-size: 12.5px; fill: var(--ls-ink); }
+.lsfig svg .lab { font-family: inherit; font-size: 13px; }
+.lsfig svg .lab.blue, .lsfig svg text.t-probe { fill: var(--ls-probe); }
+.lsfig svg .lab.green { fill: var(--ls-run); }
+.lsfig .hit { fill: transparent; }
+.lsfig svg text.t-atom { fill: var(--ls-atom); }
+.lsfig .fade { transition: opacity 0.4s ease; }
+.lsfig .n-rect { fill: var(--ls-paper); stroke: var(--ls-muted); stroke-opacity: 0.6; stroke-width: 1; transition: fill 0.35s ease, stroke 0.35s ease; }
+.lsfig .n-rect.nf { stroke: var(--ls-ink); stroke-opacity: 1; stroke-width: 1.4; }
+.lsfig .n-rect.paint { fill: var(--ls-wash); stroke: var(--ls-ink); stroke-opacity: 1; stroke-width: 1.4; }
+.lsfig .n-rect.spread { fill: var(--ls-wash); stroke: var(--ls-ink); stroke-opacity: 1; stroke-dasharray: 4 3; }
+.lsfig .n-rect.paint.pb, .lsfig .n-rect.spread.pb { fill: var(--ls-probe-wash); stroke: var(--ls-probe); }
+.lsfig .n-rect.paint.pa, .lsfig .n-rect.spread.pa { fill: var(--ls-atom-wash); stroke: var(--ls-atom); }
+.lsfig .n-rect.paint.pr, .lsfig .n-rect.spread.pr { fill: var(--ls-run-wash); stroke: var(--ls-run); }
+.lsfig .n-rect.cur { fill: var(--ls-run-wash); stroke: var(--ls-run); stroke-opacity: 1; stroke-width: 2; }
+.lsfig .pick { cursor: pointer; }
+.lsfig .edge { stroke: var(--ls-run); stroke-width: 1.1; fill: none; }
+.lsfig .edge.focus { stroke: var(--ls-run); stroke-width: 2.6; }
+.lsfig .edge.run { stroke: var(--ls-run); stroke-width: 1.6; }
+.lsfig .edge.leak { stroke: var(--ls-alarm); stroke-width: 2.4; }
+.lsfig .edge.thin { stroke-width: 0.8; }
+.lsfig .edge.blue { stroke: var(--ls-probe); stroke-dasharray: 5 4; }
+.lsfig .ah { fill: var(--ls-run); }
+.lsfig .ah-alarm { fill: var(--ls-alarm); }
+.lsfig .ah-blue { fill: var(--ls-probe); }
+.lsfig .ah-run { fill: var(--ls-run); }
+.lsfig .proj { stroke: var(--ls-muted); stroke-width: 1; stroke-dasharray: 2 4; fill: none; }
+.lsfig .baseline { stroke: var(--ls-ink); stroke-width: 1.2; }
+.lsfig .basept { fill: var(--ls-ink); }
+.lsfig .basept.k-atom { fill: var(--ls-atom); }
+.lsfig .basept.k-run { fill: var(--ls-run); }
+.lsfig .basept.k-probe { fill: var(--ls-probe); }
+.lsfig .basept.hollow { fill: var(--ls-paper); stroke: var(--ls-muted); stroke-width: 1.4; }
+.lsfig .token { fill: var(--ls-run); stroke: var(--ls-paper); stroke-width: 2; }
+.lsfig .ring { fill: var(--ls-paper); stroke: var(--ls-run); stroke-width: 2.6; }
+.lsfig .evid { fill: var(--ls-probe); stroke: var(--ls-paper); stroke-width: 2; }
+.lsfig .state { fill: var(--ls-atom); }
+.lsfig .hole { fill: var(--ls-run-wash); opacity: 0; transition: opacity 0.4s ease; }
+.lsfig .hole.on { opacity: 1; }
+.lsfig .tl { stroke-width: 1.2; fill: none; }
+.lsfig .tl.a { stroke: var(--ls-atom); }
+.lsfig .tl.p { stroke: var(--ls-probe); }
+.lsfig .tn.a { fill: var(--ls-atom); }
+.lsfig .tn.p { fill: var(--ls-probe); }
+.lsfig .holebox { fill: var(--ls-probe-wash); stroke: var(--ls-probe); stroke-width: 1; stroke-dasharray: 4 3; }
+
+/* the probe bench (and the grid of words, which shares its two columns) */
+.lsfig .bench { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 14px 36px; align-items: start; }
+.lsfig .bench > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lsfig.lsfig .bench p { font-size: 0.95rem; }
+.lsfig .runline { font-family: var(--ls-mono); font-size: 0.95rem; line-height: 1.7; overflow-wrap: anywhere; }
+.lsfig .grid-wrap { overflow-x: auto; max-width: 100%; }
+.lsfig table.grid {
+  border-collapse: collapse; width: 100%; min-width: 0; font-size: 0.9rem; line-height: 1.35;
+  border-top: 1px solid var(--ls-ink); border-bottom: 1px solid var(--ls-ink);
+}
+.lsfig .grid th, .lsfig .grid td { text-align: left; padding: 3px 8px 3px 0; vertical-align: middle; }
+.lsfig .grid thead th { font-weight: 600; font-size: 0.85rem; padding-bottom: 6px; border-bottom: 1px solid var(--ls-rule); }
+.lsfig .grid th.h-probe { color: var(--ls-probe); }
+.lsfig .grid code { font-size: 1em; }
+.lsfig .grid th[scope='row'] { font-family: var(--ls-mono); font-size: 0.86em; font-weight: 400; color: var(--ls-atom); white-space: nowrap; }
+.lsfig .grid tr.gstart th, .lsfig .grid tr.gstart td { border-top: 1px solid var(--ls-rule); }
+.lsfig .cell {
+  font-family: var(--ls-mono); font-size: 0.86em; width: 100%; min-height: 34px; text-align: left; white-space: nowrap;
+  background: none; color: var(--ls-ink); border: 1px solid var(--ls-rule); border-radius: 3px; padding: 6px 7px; cursor: pointer;
+}
+.lsfig .cell.own { color: var(--ls-probe); }
+.lsfig .cell.text { color: var(--ls-atom); }
+.lsfig .cell.sealed { color: var(--ls-muted); font-family: inherit; font-style: italic; }
+.lsfig .cell[aria-pressed='true'] { border-color: var(--ls-ink); background: var(--ls-wash); }
+.lsfig .cell .ncount { font-size: 0.8em; color: var(--ls-run); margin-left: 0.5em; }
+.lsfig .pt { font-weight: 600; text-align: center; }
+.lsfig .runline .pending { text-decoration: underline dotted var(--ls-run); }
+.lsfig .runline .redex { background: var(--ls-atom-wash); border-bottom: 2px solid var(--ls-atom); }
+.lsfig .runline .after, .lsfig .now .after { font-family: inherit; font-size: 0.8em; color: var(--ls-run); }
+
+/* the grid of words */
+.lsfig .gridline { stroke: var(--ls-rule); stroke-width: 1; }
+.lsfig .swept { fill: var(--ls-run-wash); }
+.lsfig .wordpath { stroke: var(--ls-atom); stroke-width: 2.8; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.lsfig .corner { fill: var(--ls-paper); stroke: var(--ls-run); stroke-width: 2.6; }
+.lsfig .corner.moving { fill: var(--ls-run); }
+.lsfig .cornerping { fill: none; stroke: var(--ls-run); stroke-width: 2; opacity: 0; }
+.lsfig .cornerhit { fill: transparent; }
+.lsfig g.cornerg, .lsfig g.cornerg * { cursor: pointer; }
+.lsfig g.cornerg, .lsfig .pick, .lsfig .cell, .lsfig .btn, .lsfig .tab { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.lsfig g.cornerg:hover .corner, .lsfig g.cornerg:focus .corner { fill: var(--ls-run-wash); }
+
+/* fibres, loops and evidence */
+.lsfig .roundtrip { fill: none; stroke: var(--ls-ink); stroke-width: 1.8; stroke-dasharray: 5 4; stroke-linejoin: round; }
+.lsfig .zhole { fill: var(--ls-paper); stroke: var(--ls-ink); stroke-width: 1.3; }
+.lsfig svg .lab.bad { fill: var(--ls-alarm); font-weight: 600; }
+.lsfig svg text.halo { paint-order: stroke; stroke: var(--ls-paper); stroke-width: 6px; stroke-linejoin: round; }
+.lsfig svg text.ev { font-size: 21px; font-weight: 500; fill: var(--ls-probe); }
+.lsfig.lsfig p.says { min-height: 7.4em; font-size: 0.95rem; color: var(--ls-muted); }
+
+/* interaction nets */
+.lsfig .n-dot { fill: var(--ls-paper); stroke: var(--ls-muted); stroke-width: 1.2; transition: fill 0.35s ease, stroke 0.35s ease; }
+.lsfig .n-dot.nf { stroke: var(--ls-ink); stroke-width: 1.6; }
+.lsfig .n-dot.on { stroke: var(--ls-run); }
+.lsfig .n-dot.cur { fill: var(--ls-run-wash); stroke: var(--ls-run); stroke-width: 2; }
+.lsfig svg .wire { fill: none; stroke: var(--ls-ink); stroke-width: 1.1; }
+.lsfig svg .wire.active { stroke: var(--ls-run); stroke-width: 2.6; }
+.lsfig svg .wire.next { stroke: var(--ls-run); stroke-width: 4; }
+.lsfig svg .agent { stroke-width: 1.2; }
+.lsfig svg .agent.producer { fill: var(--ls-atom-wash); stroke: var(--ls-atom); }
+.lsfig svg .agent.consumer { fill: var(--ls-run-wash); stroke: var(--ls-run); }
+.lsfig svg .agent.detached { opacity: 0.55; }
+.lsfig svg text.kind { font-family: inherit; font-size: 10px; text-anchor: middle; }
+.lsfig svg text.freep { fill: var(--ls-probe); }
+.lsfig .detached-box { fill: none; stroke: var(--ls-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+
+/* the drawings of the notions: one to a card, the card's heading under it */
+.lsfig .zoo { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px 24px; }
+.lsfig .card { border-top: 2px solid var(--ls-ink); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.lsfig .card.c-obs { border-top-color: var(--ls-probe); }
+.lsfig .card.c-step { border-top-color: var(--ls-run); }
+.lsfig.lsfig .card p.zlabel { font-size: 0.95rem; line-height: 1.3; }
+.lsfig .zdesc { fill: var(--ls-atom-wash); stroke: var(--ls-atom); stroke-width: 1; }
+.lsfig svg text.zt { font-size: 10.5px; }
+.lsfig .zprobe { fill: none; stroke: var(--ls-probe); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.lsfig .zlens { fill: none; stroke: var(--ls-probe); stroke-width: 1.7; }
+.lsfig .zproof { fill: none; stroke: var(--ls-probe); stroke-width: 1.5; }
+.lsfig .zkept { fill: none; stroke: var(--ls-ink); stroke-width: 1.7; }
+
+/* small multiples: two panels side by side when both fit at 1:1 */
+.lsfig .multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 36px; }
+.lsfig .multiples > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.lsfig.lsfig .multiples p { font-size: 0.95rem; }
+.lsfig .multiples .check { color: var(--ls-ink); }
+
+/* narrow hosts (the essay switched these at a window of 820px, a figure of about 760px) */
+@container lsfig (max-width: 760px) {
+  .lsfig .bench { grid-template-columns: minmax(0, 1fr); }
+  .lsfig .tab { padding: 10px 2px; }
+  .lsfig .btn { padding: 8px 16px; }
+  .lsfig.lsfig p.says { min-height: 0; }
+}
+@container lsfig (max-width: 700px) {
+  .lsfig .multiples { grid-template-columns: minmax(0, 1fr); }
+}
+/* the table of probes keeps to the host: smaller type, tighter cells, a count under its reading; if it
+   still does not fit, it scrolls inside its frame and the row labels stay in view */
+@container lsfig (max-width: 600px) {
+  .lsfig table.grid { font-size: 0.82rem; }
+  .lsfig .grid th, .lsfig .grid td { padding: 2px 4px 2px 0; }
+  .lsfig .cell { padding: 5px 5px; white-space: normal; }
+  .lsfig .cell .ncount { display: block; margin-left: 0; line-height: 1.15; }
+  .lsfig .grid th[scope='row'] { position: sticky; left: 0; z-index: 1; background: var(--ls-paper); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* short cues: a point reached, a reading landed, a number changed, a square swept */
+  .lsfig .arrive { stroke: var(--ls-run); animation: lsfig-arrive 0.9s ease-out 1 forwards; }
+  .lsfig .k-probe.arrive, .lsfig .evid.arrive { stroke: var(--ls-probe); }
+  .lsfig .k-atom.arrive { stroke: var(--ls-atom); }
+  .lsfig svg text.ev.pop { animation: lsfig-popev 0.7s ease-out 1; }
+  .lsfig svg text.lab.pop { animation: lsfig-poplab 0.7s ease-out 1; }
+  .lsfig .cornerping { animation: lsfig-ping 1.6s ease-out infinite; }
+  .lsfig .cell.land { animation: lsfig-land 0.9s ease-out 1; }
+}
+@keyframes lsfig-arrive { 0% { stroke-width: 0; stroke-opacity: 0.9; } 40% { stroke-width: 16px; stroke-opacity: 0.45; } 100% { stroke-width: 16px; stroke-opacity: 0; } }
+@keyframes lsfig-popev { 0% { font-size: 36px; } 100% { font-size: 21px; } }
+@keyframes lsfig-poplab { 0% { font-size: 19px; } 100% { font-size: 13px; } }
+@keyframes lsfig-ping { 0% { stroke-width: 2px; opacity: 0.85; } 100% { stroke-width: 26px; opacity: 0; } }
+@keyframes lsfig-land { 0% { box-shadow: 0 0 0 0 currentColor; transform: scale(1.12); } 100% { box-shadow: 0 0 0 12px transparent; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .lsfig *, .lsfig *::before, .lsfig *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  .lsfig .controls, .lsfig select, .lsfig button { display: none; }
+}
