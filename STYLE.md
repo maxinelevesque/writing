@@ -61,10 +61,16 @@ described in its `SPEC.md` ("Interactive essay format").
 
 - **Link the proved statement itself** to its Lean source at a pinned commit:
   `[every term has a normal form](https://github.com/…/blob/<commit>/File.lean#L120)`. The site
-  sets such links with a dashed underline and tells screen readers they lead to a proof. Don't
-  add a separate "lean" or "proof" link **(warned)**.
-- **Explain the convention once**, in a note at the first proof link: "A statement with a dashed
-  underline links to its machine-checked proof in Lean."
+  sets such links with a faint dotted underline ending in ⊢, and tells screen readers they lead
+  to a proof. Don't add a separate "lean" or "proof" link **(warned)**.
+- **Link a name to its definition** the same way, with a title that begins `Definition:`:
+  `[the eager table](https://github.com/…/IxTree.lean#L128 "Definition: Ix.TC.eagerTable")`. The
+  site ends it in `:=`, as Lean writes a definition, instead of ⊢. Only proved statements and
+  definitions get Lean links; link anything else in Lean (a file of checks, a folder) by its
+  folder, not a `.lean` file.
+- **Explain the conventions once**, in a note at the first proof link: "A statement with a faint
+  dotted underline, ending in ⊢, links to its machine-checked proof in Lean. A name ending in :=
+  links to its definition in Lean."
 
 ## Figures
 
