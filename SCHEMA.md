@@ -223,11 +223,11 @@ are a projection of the body (`scripts/lib/atproto-report.mjs`):
     or the SVG if there's no PNG beside it, with a warning;
   - the caption ends with `[Interactive version →](<canonical>?calc=<calc>#<id>)`, a link to the
     live figure in the calculus its still shows.
+- **Boxes** stay quotations, opened, with their lead in bold: `> **Theorem. The gap**`,
+  `> **By level of support**`.
 - **In `textContent`**, each figure reads `[Figure 2 (interaction nets): title. Caption. Alt text.]`.
 - **Links:** other relative links and images (`assets/`, the read-aloud file) become absolute site
   URLs, and `<!-- page-switch -->` goes.
-- **Boxes** stay quotations, opened, with their lead in bold: `> **Theorem. The gap**`,
-  `> **By level of support**`.
 - **Math:** simple formulas (brackets, arrows, relations, Greek letters, `\mathrm{}`) become
   Unicode, both inline and on their own line. Any other formula stays as TeX and is reported as
   a warning for the author. Code is left alone.
