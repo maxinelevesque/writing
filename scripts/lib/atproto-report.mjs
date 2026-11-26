@@ -16,19 +16,61 @@ import { blocks, parseFigureMarker, IMAGE, LINK } from './figures.mjs';
 
 
 const SYMBOLS = { llbracket: '⟦', rrbracket: '⟧', to: '→', rightarrow: '→', leftarrow: '←', Rightarrow: '⇒',
-  mapsto: '↦', vdash: '⊢', in: '∈', notin: '∉', subseteq: '⊆', cup: '∪', cap: '∩', times: '×', circ: '∘',
-  le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠', equiv: '≡', simeq: '≃', cong: '≅', approx: '≈',
-  forall: '∀', exists: '∃', neg: '¬', land: '∧', lor: '∨', emptyset: '∅', infty: '∞', cdot: '·', ldots: '…', dots: '…',
-  alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', lambda: 'λ', mu: 'μ', pi: 'π', sigma: 'σ', tau: 'τ',
-  phi: 'φ', psi: 'ψ', omega: 'ω', Gamma: 'Γ', Delta: 'Δ', Lambda: 'Λ', Sigma: 'Σ', Phi: 'Φ', Omega: 'Ω' };
+  mapsto: '↦', vdash: '⊢', in: '∈', notin: '∉', subseteq: '⊆', subset: '⊂', cup: '∪', cap: '∩', times: '×', circ: '∘',
+  le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠', equiv: '≡', simeq: '≃', cong: '≅', approx: '≈', sim: '∼',
+  forall: '∀', exists: '∃', neg: '¬', land: '∧', lor: '∨', emptyset: '∅', infty: '∞', cdot: '·', cdots: '⋯',
+  ldots: '…', dots: '…', pm: '±', mp: '∓', partial: '∂', nabla: '∇', sum: '∑', prod: '∏', oplus: '⊕', otimes: '⊗',
+  ell: 'ℓ', ast: '∗', star: '⋆', prime: '′', ni: '∋', notni: '∌',
+  log: 'log', ln: 'ln', lg: 'lg', exp: 'exp', lim: 'lim', max: 'max', min: 'min', sup: 'sup', inf: 'inf', sin: 'sin',
+  cos: 'cos', tan: 'tan', det: 'det', dim: 'dim', ker: 'ker', deg: 'deg', gcd: 'gcd', arg: 'arg', hom: 'hom', mid: '|', colon: ':', setminus: '∖', langle: '⟨', rangle: '⟩', lvert: '|', rvert: '|',
+  alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ',
+  iota: 'ι', kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ',
+  upsilon: 'υ', phi: 'φ', varphi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω', Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ',
+  Lambda: 'Λ', Xi: 'Ξ', Pi: 'Π', Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω' };
+const SUP = Object.fromEntries([...'0123456789+-=()niabcdefghjklmoprstuvwxyzABDEGHIJKLMNOPRTUVW'].map((c, i) =>
+  [c, [...'⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱᵃᵇᶜᵈᵉᶠᵍʰʲᵏˡᵐᵒᵖʳˢᵗᵘᵛʷˣʸᶻᴬᴮᴰᴱᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴿᵀᵁⱽᵂ'][i]]));
+Object.assign(SUP, { '′': '′', '*': '*', '∗': '*' });
+const SUB = Object.fromEntries([...'0123456789+-=()aehijklmnoprstuvxβγρφχ'].map((c, i) =>
+  [c, [...'₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓᵦᵧᵨᵩᵪ'][i]]));
+const ACCENTS = { bar: '̄', overline: '̅', hat: '̂', widehat: '̂', tilde: '̃', widetilde: '̃',
+  dot: '̇', ddot: '̈', vec: '⃗' };
+const BB = { R: 'ℝ', N: 'ℕ', Z: 'ℤ', Q: 'ℚ', C: 'ℂ', F: '𝔽' };
+const VULGAR = { '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾', '1/5': '⅕', '2/5': '⅖', '3/5': '⅗', '4/5': '⅘',
+  '1/6': '⅙', '5/6': '⅚', '1/7': '⅐', '1/8': '⅛', '3/8': '⅜', '5/8': '⅝', '7/8': '⅞', '1/9': '⅑', '1/10': '⅒' };
 
 /** Simple TeX → Unicode, or null when the formula needs real typesetting. */
 export function texToUnicode(tex) {
+  const FAIL = '\u0000';
   let out = tex.trim()
-    .replace(/\\(?:mathrm|text|mathsf|operatorname)\{([^{}]*)\}/g, '$1')
+    .replace(/\\(?:mathrm|text|mathsf|operatorname|mathit|mathbf)\{([^{}]*)\}/g, '$1')
+    .replace(/\\mathbb\{([A-Z])\}/g, (all, c) => BB[c] ?? all)
+    // Numeric fractions: \tfrac78 → ⅞, \frac{12}{17} → 12⁄17.
+    .replace(/\\[dt]?frac\s*(?:\{(\d+)\}|(\d))\s*(?:\{(\d+)\}|(\d))/g, (all, a1, a2, b1, b2) => {
+      const f = `${a1 ?? a2}/${b1 ?? b2}`;
+      return VULGAR[f] ?? f.replace('/', '\u2044');
+    })
+    .replace(/\\(?:left|right|big|Big|bigl|bigr|Bigl|Bigr)(?![A-Za-z])/g, '')
+    .replace(/\\([{}|])/g, '$1')
     .replace(/\\([A-Za-z]+)/g, (all, name) => (name in SYMBOLS ? SYMBOLS[name] : all))
-    .replace(/\\[,;: ]/g, ' ');
-  if (/[\\^_{}]/.test(out)) return null;
+    .replace(/\\[,;:! ]|\\q?quad\b/g, ' ');
+  // Accents on one letter: \bar\kappa, \bar{x}, \hat x.
+  out = out.replace(/\\([A-Za-z]+)\s*(?:\{(\S)\}|(\S))/g, (all, name, a, b) =>
+    (name in ACCENTS ? (a ?? b) + ACCENTS[name] : all));
+  // Sub- and superscripts as Unicode when every one of them has a form (Q_a, H^1, x_{n+1}).
+  // Unicode has no subscript b, q or ℓ, so otherwise the whole formula keeps them in linear
+  // notation, the same way throughout: t_p : Q_a → Q_b, π_b^(−1) ∘ π_a.
+  const SCRIPTS = /([_^])(?:\{([^{}]*)\}|(\S))/g;
+  const all = [...out.matchAll(SCRIPTS)];
+  const unicode = all.every(([, mark, group, one]) => [...(group ?? one)].every((c) => c in (mark === '^' ? SUP : SUB)));
+  out = out.replace(SCRIPTS, (m, mark, group, one) => {
+    const text = (group ?? one).trim();
+    if (unicode) return [...text].map((c) => (mark === '^' ? SUP : SUB)[c]).join('');
+    const plain = text.replace(/-/g, '−');
+    return `${mark}${[...plain].length > 1 ? `(${plain})` : plain}`;
+  });
+  if (out.includes(FAIL)) return null;
+  out = out.replace(/\{([^{}\\]*)\}/g, '$1'); // grouping braces left over
+  if (/[\\{}]/.test(out) || (unicode && /[\^_]/.test(out))) return null;
   return out.replace(/\s+/g, ' ').replace(/⟦\s+/g, '⟦').replace(/\s+⟧/g, '⟧');
 }
 

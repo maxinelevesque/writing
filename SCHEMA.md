@@ -206,9 +206,14 @@ are a projection of the body (`scripts/lib/atproto-report.mjs`):
 - **In `textContent`**, each figure reads `[Figure 2 (interaction nets): title. Caption. Alt text.]`.
 - **Links:** other relative links and images (`assets/`, the read-aloud file) become absolute site
   URLs, and `<!-- page-switch -->` goes.
-- **Math:** simple formulas (brackets, arrows, relations, Greek letters, `\mathrm{}`) become
-  Unicode, both inline and on their own line. Any other formula stays as TeX and is reported as
-  a warning for the author. Code is left alone.
+- **Math** becomes text, inline and on its own line. Code is left alone.
+  - Symbols, Greek, `\mathrm{}`, `\mathbb{}`, function names (`\log`, `\max`) and accents on
+    one letter (`\bar\kappa`) become Unicode, and so do numeric fractions (`\tfrac78` → ⅞).
+  - Sub- and superscripts become Unicode when every one in the formula has a form (`Q_a` → Qₐ,
+    `H^1` → H¹). Unicode has no subscript b, q or ℓ. So otherwise the whole formula keeps them in
+    linear notation, consistently: `t_p : Q_a → Q_b`, `π_b^(−1) ∘ π_a`.
+  - A formula with real structure (`\frac{1}{n}`, roots, matrices) stays as TeX and is reported
+    as a warning for the author.
 
 Other kinds are unchanged. `node scripts/publish-atproto --show <slug>` prints what a piece's
 record would hold, without publishing anything.
