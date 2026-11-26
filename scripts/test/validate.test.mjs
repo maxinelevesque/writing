@@ -206,3 +206,20 @@ test('report conventions: abstract, one page switch, citations and proof links',
   r.write('pieces/e/index.md', '---\ntitle: "E"\ndate: 2026-01-01\nkind: essay\ncanonical: https://maxine.science/writing/e\n---\n\n<!-- page-switch -->\n\nText.\n');
   fails(r.run(), /only rendered for kind: report/);
 });
+
+test('cards: a marked list of pictures with bold headings, only in reports', (t) => {
+  const run = (body) => { const r = repo(t); r.piece('pieces/r', { index: report({ body }) }); return r.run(); };
+  const card = (alt, heading = '**Heading.** Text.') => `- ![${alt}](assets/bar.svg) ${heading}`;
+  passes(run(`\n<!-- cards -->\n\n${card('One.')}\n${card('Two.')}\n`));
+  passes(run(`\n<!-- cards -->\n\n${card('One.')}\n\n${card('Two.')}\n\n  A second paragraph.\n\n${card('Three.')}\n`));
+  fails(run('\n<!-- cards -->\n\nNo list.\n'), /must be followed by a bulleted list/);
+  fails(run(`\n<!-- cards -->\n\n${card('One.')}\n- **No picture.** Text.\n`), /starts with its picture/);
+  fails(run(`\n<!-- cards -->\n\n${card('One.', 'No heading.')}\n`), /starts with its picture/);
+  fails(run(`\n<!-- cards -->\n\n${card('')}\n`), /needs alt text/);
+  fails(run(`\n<!-- cards -->\n\n- ![A.](assets/missing.svg) **H.** T.\n`), /missing\.svg/);
+  assert.doesNotMatch(run(`\n<!-- cards -->\n\n${card('One.')}\n`).out, /unknown marker/);
+
+  const r = repo(t);
+  r.write('pieces/e/index.md', '---\ntitle: "E"\ndate: 2026-01-01\nkind: essay\ncanonical: https://maxine.science/writing/e\n---\n\n<!-- cards -->\n\n- ![A.](a.svg) **H.** T.\n');
+  fails(r.run(), /cards --> is only rendered for kind: report/);
+});

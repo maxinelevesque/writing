@@ -8,8 +8,8 @@
 //                                       → … Caption. [Interactive version →](<canonical>?calc=net#fig-runs)
 //
 // Other relative links (assets/, the read-aloud file) become absolute URLs on the site, and the
-// page-switch marker goes. Theorem and collapsible boxes become quotations with a bold lead. In
-// textContent each figure reads
+// page-switch and cards markers go (cards stay a list with their pictures). Theorem and
+// collapsible boxes become quotations with a bold lead. In textContent each figure reads
 // "[Figure 2 (interaction nets): Four views of running. Caption… Alt text.]".
 // Math becomes Unicode where it's simple (the brackets, arrows and letters of the report); a
 // formula with anything else stays as TeX, and is reported as a warning for the author.
@@ -146,7 +146,7 @@ export function projectReport({ slug, body, canonical, hasFile = () => false }) 
   md = md.replace(/\n*\u0000DROP\u0000\n*/g, '\n\n');
 
   // The page switch is the site's; other relative links and images point at the site's files.
-  md = md.replace(/^<!--\s*page-switch\s*-->\s*$/gm, '')
+  md = md.replace(/^<!--\s*(?:page-switch|cards)\s*-->\s*$/gm, '')
     .replace(LINK, (all, bang, text, url, title) => {
       if (!isRelative(url)) return all;
       return `${bang}[${text}](${bang ? still(url) : absolute(url)}${title})`;
