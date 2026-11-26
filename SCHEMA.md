@@ -122,6 +122,26 @@ The only other marker is `<!-- page-switch -->`, at most once in a report, where
 introduces the page switch. A report also needs an abstract. Both are described in
 [`STYLE.md`](STYLE.md), with the house style for citations, displays and proof links.
 
+## Boxes
+
+Two kinds of quotation in a report are boxes on the site:
+
+```md
+> [!THEOREM] The gap
+>
+> The statement.
+
+> [!DETAILS] By level of support
+>
+> Anything: paragraphs, lists, a table.
+```
+
+- `[!THEOREM] Lead` is a theorem box: shown as "Theorem. Lead", with a rule on its left.
+- `[!DETAILS] Label` is a collapsible box, closed until the reader opens it, under whatever label
+  suits its use. `[!ESTABLISHED]` is its older name and still works.
+
+GitHub shows both as ordinary quotations, and the atproto copy opens them (below).
+
 ## SOURCE
 
 A piece written in another repository and exported here carries a `SOURCE` file:
@@ -203,6 +223,8 @@ are a projection of the body (`scripts/lib/atproto-report.mjs`):
     or the SVG if there's no PNG beside it, with a warning;
   - the caption ends with `[Interactive version →](<canonical>?calc=<calc>#<id>)`, a link to the
     live figure in the calculus its still shows.
+- **Boxes** stay quotations, opened, with their lead in bold: `> **Theorem. The gap**`,
+  `> **By level of support**`.
 - **In `textContent`**, each figure reads `[Figure 2 (interaction nets): title. Caption. Alt text.]`.
 - **Links:** other relative links and images (`assets/`, the read-aloud file) become absolute site
   URLs, and `<!-- page-switch -->` goes.

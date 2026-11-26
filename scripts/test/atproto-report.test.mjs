@@ -63,3 +63,14 @@ test('sub- and superscripts, accents, fractions and functions; linear notation w
   assert.equal(texToUnicode('\\sum_{i} x_i^{\\frac12}'), '∑_i x_i^½');
   for (const tex of ['\\frac{1}{n}', '\\sqrt{2}', '\\begin{pmatrix} a \\end{pmatrix}']) assert.equal(texToUnicode(tex), null, tex);
 });
+
+test('boxes stay quotations, opened, with their lead in bold', () => {
+  const body = '> [!THEOREM] The gap\n>\n> No price fits.\n\n> [!DETAILS] By level of support\n>\n> | Claim | Lean |\n> |---|---|\n> | a | b |\n\n> [!ESTABLISHED] What is established\n>\n> Older name.\n';
+  const r = projectReport({ slug: 'x', body, canonical: 'https://maxine.science/research/x' });
+  assert.doesNotMatch(r.markdown, /\[!/);
+  assert.match(r.markdown, /^> \*\*Theorem\. The gap\*\*$/m);
+  assert.match(r.markdown, /^> \*\*By level of support\*\*\n>\n> \| Claim \| Lean \|$/m);
+  assert.match(r.markdown, /^> \*\*What is established\*\*$/m);
+  assert.doesNotMatch(r.textContent, /\[!|\*\*/);
+  assert.match(r.textContent, /^Theorem\. The gap\. No price fits\. By level of support\./);
+});

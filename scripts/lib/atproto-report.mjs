@@ -8,7 +8,8 @@
 //                                       → … Caption. [Interactive version →](<canonical>?calc=net#fig-runs)
 //
 // Other relative links (assets/, the read-aloud file) become absolute URLs on the site, and the
-// page-switch marker goes. In textContent each figure reads
+// page-switch marker goes. Theorem and collapsible boxes become quotations with a bold lead. In
+// textContent each figure reads
 // "[Figure 2 (interaction nets): Four views of running. Caption… Alt text.]".
 // Math becomes Unicode where it's simple (the brackets, arrows and letters of the report); a
 // formula with anything else stays as TeX, and is reported as a warning for the author.
@@ -150,6 +151,16 @@ export function projectReport({ slug, body, canonical, hasFile = () => false }) 
       if (!isRelative(url)) return all;
       return `${bang}[${text}](${bang ? still(url) : absolute(url)}${title})`;
     });
+
+  // Boxes (SCHEMA.md "Boxes") are the site's; here they stay quotations, opened, with their lead
+  // in bold: "> [!THEOREM] The gap" → "> **Theorem. The gap**", "> [!DETAILS] Label" → "> **Label**".
+  const BOX = /^(\s{0,3}>\s?)\[!(THEOREM|DETAILS|ESTABLISHED)\] (.+?)\s*$/gm;
+  const lead = (kind, label) => (kind === 'THEOREM' ? `Theorem. ${label}` : label);
+  md = md.replace(BOX, (all, q, kind, label) => `${q}**${lead(kind, label)}**`);
+  plain = plain.replace(BOX, (all, q, kind, label) => {
+    const l = lead(kind, label);
+    return `${q}${/[.!?:]$/.test(l) ? l : `${l}.`}`;
+  });
 
   // Math: Unicode where it's simple; otherwise TeX, said so. (Code is left alone.)
   const math = (text, report) => text.split(/(```[\s\S]*?```|`[^`\n]+`)/).map((part, i) => (i % 2 ? part : part
